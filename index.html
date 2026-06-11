@@ -6,35 +6,35 @@
 <title>World Cup 2026 — Live Wallpaper</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-/* ============ THEMES ============ */
-body{ /* Stadium Night (default) */
-  --bg:#0b1220; --stagebg:radial-gradient(1300px 750px at 50% 42%,#1b2c50 0%,#0b1220 72%);
-  --panel:#111c31; --card:#18263f; --card2:#1e3050; --line:#2b3f63;
-  --txt:#eaf0fc; --dim:#93a7cc; --faint:#5f7398;
-  --accent:#f5c542; --live:#ff4d6d; --wire:#41598a; --scbg:rgba(0,0,0,.28);
+/* ============ THEMES — official WC26 host colours ============ */
+body{ /* USA Blue (default) */
+  --bg:#081530; --stagebg:radial-gradient(1300px 750px at 50% 42%,#16336e 0%,#081530 72%);
+  --panel:#0e2147; --card:#163059; --card2:#1d3e74; --line:#2d5093;
+  --txt:#eaf1ff; --dim:#9ab4de; --faint:#6483b3;
+  --accent:#f5c542; --live:#ff4d6d; --wire:#3f63a8; --scbg:rgba(0,0,0,.28);
+  --glow1:rgba(245,197,66,.16); --glow2:rgba(77,140,255,.18); --glow3:rgba(255,255,255,.08);
 }
-body[data-theme="fiesta"]{
-  --bg:#180a2e; --stagebg:linear-gradient(135deg,#2a0f4d 0%,#180a2e 45%,#3d0f3a 100%);
-  --panel:#241040; --card:#2e1652; --card2:#3a1c66; --line:#4d2b80;
-  --txt:#fdf2ff; --dim:#c9a8e8; --faint:#8f6cb8;
-  --accent:#ffd23f; --live:#ff3d81; --wire:#6b41a8; --scbg:rgba(0,0,0,.3);
-  --glow1:rgba(255,61,129,.22); --glow2:rgba(64,224,255,.16); --glow3:rgba(255,210,63,.16);
+body[data-theme="canada"]{ /* Canada Red */
+  --bg:#2b070b; --stagebg:radial-gradient(1300px 750px at 50% 42%,#6b1118 0%,#2b070b 72%);
+  --panel:#3b0d12; --card:#4c1218; --card2:#5e1a20; --line:#82303a;
+  --txt:#fff0f1; --dim:#e3aab0; --faint:#b3747c;
+  --accent:#ffd166; --live:#6fd6ff; --wire:#9a3b46; --scbg:rgba(0,0,0,.3);
+  --glow1:rgba(255,209,102,.14); --glow2:rgba(255,255,255,.10); --glow3:rgba(255,77,90,.16);
 }
-body[data-theme="pitch"]{
+body[data-theme="mexico"]{ /* Mexico Green */
   --bg:#04190c; --stagebg:radial-gradient(1300px 750px at 50% 45%,#0c3a1c 0%,#04190c 75%);
   --panel:#0a2a14; --card:#103a1d; --card2:#155028; --line:#1f5e31;
   --txt:#f0fbf2; --dim:#9ccfa8; --faint:#5f8f6c;
   --accent:#ffd84d; --live:#ff5a5a; --wire:#2c7a42; --scbg:rgba(0,0,0,.3);
   --glow1:rgba(255,216,77,.13); --glow2:rgba(70,200,110,.16); --glow3:rgba(255,255,255,.06);
 }
-body[data-theme="paper"]{
-  --bg:#efe3cb; --stagebg:linear-gradient(160deg,#f7ecd6 0%,#efe0c2 60%,#eed6b2 100%);
-  --panel:#fbf4e4; --card:#fffdf6; --card2:#fff6df; --line:#d9c49a;
-  --txt:#33261a; --dim:#7a644a; --faint:#a8906c;
-  --accent:#d35400; --live:#d62f4c; --wire:#c4a878; --scbg:rgba(51,38,26,.1);
-  --glow1:rgba(211,84,0,.12); --glow2:rgba(22,128,128,.10); --glow3:rgba(214,47,76,.08);
+body[data-theme="all"]{ /* All White */
+  --bg:#e9edf3; --stagebg:linear-gradient(160deg,#ffffff 0%,#eef2f8 55%,#dfe7f1 100%);
+  --panel:#f8fafd; --card:#ffffff; --card2:#eff4fb; --line:#c3cfdf;
+  --txt:#1a2433; --dim:#566883; --faint:#8a9ab1;
+  --accent:#0a63d6; --live:#d62f4c; --wire:#a9bacf; --scbg:rgba(26,36,51,.08);
+  --glow1:rgba(10,99,214,.10); --glow2:rgba(214,47,76,.07); --glow3:rgba(20,160,90,.07);
 }
-body{--glow1:rgba(245,197,66,.16); --glow2:rgba(77,140,255,.14); --glow3:rgba(255,77,109,.10);}
 /* ============ BASE ============ */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;overflow-x:hidden}
@@ -44,7 +44,7 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 #stage>*{position:relative;z-index:1}
 /* ---- background decor ---- */
 #decor{position:absolute;inset:0;z-index:0!important;pointer-events:none}
-#bgphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.13;display:none}
+#bgphoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
 .glow{position:absolute;border-radius:50%}
 .g1{width:1100px;height:1100px;left:-260px;top:-300px;background:radial-gradient(circle,var(--glow2),transparent 68%)}
 .g2{width:1100px;height:1100px;right:-260px;bottom:-320px;background:radial-gradient(circle,var(--glow1),transparent 68%)}
@@ -55,19 +55,19 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 .pitch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);opacity:.045;color:var(--txt)}
 .trophysvg{position:absolute;left:50%;top:51%;transform:translate(-50%,-50%);opacity:.06;color:var(--accent)}
 .hostflags{display:none;position:absolute;left:50%;top:80px;transform:translateX(-50%);font-size:64px;letter-spacing:30px;opacity:.16}
-#topart{position:absolute;left:50%;top:6px;transform:translateX(-50%);height:170px;width:auto;filter:drop-shadow(0 5px 16px rgba(0,0,0,.45))}
+#topart{position:absolute;left:50%;top:6px;transform:translateX(-50%);height:220px;width:auto;filter:drop-shadow(0 5px 16px rgba(0,0,0,.45))}
 .year{position:absolute;left:50%;bottom:-46px;transform:translateX(-50%);font-size:230px;font-weight:900;letter-spacing:40px;opacity:.04;color:var(--txt);white-space:nowrap}
 /* ---- header ---- */
 #hdr{height:58px;display:flex;align-items:center;gap:20px;padding:0 8px 8px}
-#hdr .title{font-size:34px;font-weight:900;letter-spacing:2.5px}
+#hdr .title{font-size:38px;font-weight:900;letter-spacing:2.5px}
 #hdr .title b{color:var(--accent)}
-#hdr .sub{font-size:15px;color:var(--dim)}
+#hdr .sub{font-size:17px;color:var(--dim)}
 #hdr .spacer{flex:1}
-#updated{font-size:13.5px;color:var(--faint)}
-#hdr .ctrl{display:flex;align-items:center;gap:14px;font-size:14px;color:var(--dim)}
+#updated{font-size:15px;color:var(--faint)}
+#hdr .ctrl{display:flex;align-items:center;gap:14px;font-size:15px;color:var(--dim)}
 #hdr label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
-#hdr select{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:14px}
-#hdr button{background:var(--accent);color:#1a1404;border:0;border-radius:6px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer}
+#hdr select{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:15px}
+#hdr button{background:var(--accent);color:#1a1404;border:0;border-radius:6px;padding:8px 14px;font-size:15px;font-weight:700;cursor:pointer}
 #hdr button:hover{filter:brightness(1.08)}
 .capturing .ctrl{display:none!important}
 /* ---- layout ---- */
@@ -75,26 +75,26 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 .side{width:520px;display:flex;flex-direction:column;gap:7px}
 /* ---- group box ---- */
 .group{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-.ghead{display:flex;align-items:center;gap:10px;padding:2px 10px;font-size:15px;font-weight:900;letter-spacing:1.8px;color:#10131a;flex:none}
+.ghead{display:flex;align-items:center;gap:10px;padding:2px 10px;font-size:17px;font-weight:900;letter-spacing:1.8px;color:#10131a;flex:none}
 .gbody{flex:1;display:flex;min-height:0}
 .rank{width:182px;flex:none;padding:4px 7px 5px 9px;display:flex;flex-direction:column;justify-content:space-evenly;border-right:1px solid var(--line)}
-.rank .rhead{display:grid;grid-template-columns:14px 1fr 30px 36px;font-size:10px;color:var(--faint);font-weight:700;letter-spacing:.4px}
-.rrow{display:grid;grid-template-columns:14px 1fr 30px 36px;align-items:center;font-size:15.5px;font-weight:700;padding:2px 0;border-left:3px solid transparent}
-.rrow .pos{color:var(--faint);font-size:12px;font-weight:600}
+.rank .rhead{display:grid;grid-template-columns:14px 1fr 30px 36px;font-size:11.5px;color:var(--faint);font-weight:700;letter-spacing:.4px}
+.rrow{display:grid;grid-template-columns:14px 1fr 30px 36px;align-items:center;font-size:17px;font-weight:700;padding:2px 0;border-left:3px solid transparent}
+.rrow .pos{color:var(--faint);font-size:13.5px;font-weight:600}
 .rrow .pts{color:var(--accent);text-align:right}
-.rrow .gd{color:var(--dim);text-align:right;font-size:13px;font-weight:600}
+.rrow .gd{color:var(--dim);text-align:right;font-size:14.5px;font-weight:600}
 .rrow.q{border-left-color:var(--accent)}
 .fixtures{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:3px 7px;min-height:0}
 .fx{display:grid;grid-template-columns:106px 1fr 36px;align-items:center;gap:4px;min-height:0}
-.fx .when{font-size:10.5px;color:var(--faint);white-space:nowrap;overflow:hidden}
+.fx .when{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden}
 .fx .when b{color:var(--dim);font-weight:700}
-.fx .match{display:grid;grid-template-columns:1fr 48px 1fr;align-items:center;font-size:14.5px;font-weight:700;white-space:nowrap}
+.fx .match{display:grid;grid-template-columns:1fr 52px 1fr;align-items:center;font-size:16px;font-weight:700;white-space:nowrap}
 .fx .h{text-align:right}.fx .a{text-align:left}
-.fx .mid2{text-align:center;font-weight:800;font-size:15px}
-.fx .mid2.pre{color:var(--faint);font-weight:600;font-size:12px}
+.fx .mid2{text-align:center;font-weight:800;font-size:16.5px}
+.fx .mid2.pre{color:var(--faint);font-weight:600;font-size:13.5px}
 .fx.live .mid2,.fx.live .when b{color:var(--live)}
 /* TV badge */
-.tv{font-size:10px;font-weight:800;border-radius:3px;padding:2.5px 0;width:34px;text-align:center;color:#fff;justify-self:end}
+.tv{font-size:11.5px;font-weight:800;border-radius:3px;padding:2.5px 0;width:34px;text-align:center;color:#fff;justify-self:end}
 .tv.BBC{background:#e2231a}
 .tv.ITV{background:#0a6e4f}
 body.hide-tv .tv{visibility:hidden}
@@ -105,17 +105,17 @@ body.hide-tv .tv{visibility:hidden}
 .bcard{--rc:var(--line);position:absolute;background:linear-gradient(150deg,var(--card2) 0%,var(--card) 60%);border:1px solid var(--line);border-radius:10px;padding:8px 11px 8px 15px;display:flex;flex-direction:column;justify-content:space-evenly;box-shadow:0 3px 10px rgba(0,0,0,.22)}
 .bcard::before{content:'';position:absolute;left:-1px;top:-1px;bottom:-1px;width:5px;border-radius:10px 0 0 10px;background:var(--rc)}
 .bcard.r32{--rc:#4aa8ff}.bcard.r16{--rc:#2fd6c3}.bcard.qf{--rc:#ff9434}.bcard.sf{--rc:#b97bff}.bcard.tp{--rc:#e0a458}
-.bcard .meta{font-size:12.5px;color:var(--faint);display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;border-bottom:1px solid var(--line);padding-bottom:4px}
-.bcard .meta .rlab{background:var(--rc);color:#10131a;font-weight:800;letter-spacing:.5px;font-size:10.5px;padding:1.5px 6px;border-radius:4px}
-.bcard .team{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:700}
+.bcard .meta{font-size:14px;color:var(--faint);display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;border-bottom:1px solid var(--line);padding-bottom:4px}
+.bcard .meta .rlab{background:var(--rc);color:#10131a;font-weight:800;letter-spacing:.5px;font-size:12px;padding:1.5px 6px;border-radius:4px}
+.bcard .team{display:flex;align-items:center;gap:7px;font-size:19px;font-weight:700}
 .bcard .team .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bcard .team .sc{margin-left:auto;font-weight:800;min-width:28px;text-align:center;background:var(--scbg);border-radius:6px;padding:0 5px}
-.bcard .team.tbd .nm{color:var(--faint);font-weight:500;font-size:13.5px}
+.bcard .team.tbd .nm{color:var(--faint);font-weight:500;font-size:15px}
 .bcard .team.tbd .sc{background:none}
 .bcard .team.win .nm,.bcard .team.win .sc{color:var(--accent)}
 .bcard.live{border-color:var(--live)}
 .bcard.live .sc{color:var(--live)}
-.bcard.bigcard .team{font-size:19px}
+.bcard.bigcard .team{font-size:21px}
 /* —— THE FINAL: one of a kind —— */
 .bcard.fincard{
   border:2.5px solid transparent;padding-left:13px;
@@ -127,13 +127,13 @@ body.hide-tv .tv{visibility:hidden}
 .bcard.fincard::before{display:none}
 .bcard.fincard .meta{border-bottom-color:#caa53d55}
 .bcard.fincard .meta .rlab{background:linear-gradient(135deg,#f8dd82,#caa53d);color:#241a02}
-.bcard.fincard .team{font-size:21px}
+.bcard.fincard .team{font-size:23px}
 @keyframes finpulse{from{box-shadow:0 0 22px var(--glow1)}to{box-shadow:0 0 58px var(--glow1)}}
-.roundtitle{position:absolute;font-size:13px;letter-spacing:1.6px;color:var(--dim);text-align:center;font-weight:800}
+.roundtitle{position:absolute;font-size:14.5px;letter-spacing:1.6px;color:var(--dim);text-align:center;font-weight:800}
 #finhead{position:absolute;text-align:center}
 #finhead .trophy{font-size:52px;line-height:1;filter:drop-shadow(0 0 18px var(--glow1))}
-#finhead h2{font-size:26px;letter-spacing:3px;color:var(--accent);font-weight:900}
-#foot{height:22px;display:flex;align-items:center;justify-content:center;gap:18px;font-size:12.5px;color:var(--faint)}
+#finhead h2{font-size:29px;letter-spacing:3px;color:var(--accent);font-weight:900}
+#foot{height:24px;display:flex;align-items:center;justify-content:center;gap:18px;font-size:14px;color:var(--faint)}
 .legend{display:flex;gap:6px;align-items:center}
 .dot{width:9px;height:9px;border-radius:50%}
 </style>
@@ -160,18 +160,20 @@ body.hide-tv .tv{visibility:hidden}
   </div>
   <div id="hdr">
     <div class="title">FIFA <b>WORLD CUP 2026</b></div>
-    <div class="sub">🇺🇸 🇨🇦 🇲🇽 USA · Canada · Mexico — Jun 11 → Jul 19 · 104 matches · All times BST</div>
+    <div class="sub">🇺🇸 🇨🇦 🇲🇽 USA · Canada · Mexico — Jun 11 → Jul 19 · 104 matches · All times <span class="tzlabel">BST</span></div>
     <div class="spacer"></div>
     <div id="updated"></div>
     <div class="ctrl">
       <select id="themeSel">
-        <option value="night">🌃 Stadium Night</option>
-        <option value="fiesta">🎉 Fiesta</option>
-        <option value="pitch">🟩 Matchday Pitch</option>
-        <option value="paper">📜 Retro Paper</option>
+        <option value="usa">🇺🇸 USA Blue</option>
+        <option value="canada">🇨🇦 Canada Red</option>
+        <option value="mexico">🇲🇽 Mexico Green</option>
+        <option value="all">⚪ All White</option>
       </select>
-      <label><input type="checkbox" id="tvToggle" checked> TV channels</label>
+      <select id="tzSel" title="Display timezone"></select>
+      <label><input type="checkbox" id="tvToggle" checked> UK TV Channels</label>
       <button id="bgbtn" title="Set a background image by URL">🖼 Background</button>
+      <label id="bgAlphaWrap" style="display:none"><input type="range" id="bgAlpha" min="5" max="80" value="13" style="width:64px;vertical-align:middle"> Opacity</label>
       <button id="dl">⬇ Wallpaper PNG</button>
     </div>
   </div>
@@ -181,7 +183,7 @@ body.hide-tv .tv{visibility:hidden}
     <div class="side" id="sideR"></div>
   </div>
   <div id="foot">
-    <span>All kick-off times BST</span>
+    <span>All kick-off times <span class="tzlabel">BST</span></span>
     <span class="legend"><span class="dot" style="background:#e2231a"></span>BBC</span>
     <span class="legend"><span class="dot" style="background:#0a6e4f"></span>ITV</span>
     <span class="legend"><span class="dot" style="background:var(--live)"></span>Live</span>
@@ -339,14 +341,33 @@ const $=s=>document.querySelector(s);
 const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\./g,'').trim();
 const codeOf=(name,abbr)=>ALIAS[norm(name)]||ALIAS[norm(abbr)]||(TEAMS[abbr]?abbr:null);
 const utcOf=bst=>Date.parse(bst+':00Z')-3600000; // BST = UTC+1
-const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* Timezone support — all stored times are BST (UTC+1), displayed in any IANA zone */
+const LOCAL_TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/London';}catch(_){return'Europe/London';}})();
+let currentTZ=LOCAL_TZ, tzLabel='BST';
+const TZ_REF=new Date('2026-06-15T12:00:00Z'); /* mid-tournament date so DST abbreviations are correct */
+function tzShort(tz){
+  try{
+    const fp=new Intl.DateTimeFormat('en-GB',{timeZone:tz,timeZoneName:'short'}).formatToParts(TZ_REF);
+    return (fp.find(p=>p.type==='timeZoneName')||{}).value||tz;
+  }catch(_){return tz;}
+}
+
 function parts(bst){
-  const[d,tm]=bst.split('T'),[Y,M,D]=d.split('-').map(Number),[h,m]=tm.split(':').map(Number);
-  const wd=DOW[new Date(Date.UTC(Y,M-1,D)).getUTCDay()];
-  let hh=h%12===0?12:h%12,ap=h<12?'am':'pm';
-  return{d:`${wd} ${D} ${MON[M-1]}`,t:`${hh}${m?'.'+String(m).padStart(2,'0'):''}${ap}`};
+  const utcMs=Date.parse(bst+':00Z')-3600000;
+  const d=new Date(utcMs);
+  const fp=new Intl.DateTimeFormat('en-GB',{timeZone:currentTZ,weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(d);
+  const get=t=>(fp.find(x=>x.type===t)||{value:''}).value;
+  const min=get('minute');
+  const ap=(get('dayPeriod')||'').toLowerCase().replace(/\s/g,'');
+  return{d:`${get('weekday')} ${get('day')} ${get('month')}`,t:`${get('hour')}${min!=='00'?'.'+min:''}${ap}`};
 }
 const fmtBST=bst=>{const p=parts(bst);return p.d+' · '+p.t;};
+function updateTZLabels(){
+  tzLabel=tzShort(currentTZ);
+  document.querySelectorAll('.tzlabel').forEach(el=>el.textContent=tzLabel);
+}
+
 const pairKey=(a,b)=>[a,b].sort().join('-');
 let results={}, koEvents=[];
 
@@ -381,7 +402,7 @@ function renderGroups(){
         if(r.state==='in'){cls='live';stat=r.detail||'LIVE';}
         else{cls='ft';stat='FT';}
       }else{mid='<span class="mid2 pre">v</span>';stat=pp.t;}
-      return `<div class="fx ${cls}" title="${f[4]} — ${pp.d}, ${pp.t} BST">
+      return `<div class="fx ${cls}" title="${f[4]} — ${pp.d}, ${pp.t} ${tzLabel}">
         <span class="when">${pp.d} · <b>${stat}</b></span>
         <div class="match"><span class="h">${TEAMS[f[1]][1]} ${f[1]}</span>${mid}<span class="a">${f[2]} ${TEAMS[f[2]][1]}</span></div>
         <span class="tv ${f[5]}">${f[5]}</span></div>`;
@@ -539,6 +560,13 @@ function fit(){
 }
 window.addEventListener('resize',fit);
 
+/* background opacity */
+function applyBgAlpha(){
+  const v=+$('#bgAlpha').value;
+  $('#bgphoto').style.opacity=(v/100).toFixed(2);
+  try{localStorage.setItem('wc26bgalpha',v);}catch(_){}
+}
+
 /* backdrop: saved URL takes priority, else probe local bg.jpg / bg.png / bg.webp */
 function loadBgUrl(url,quiet){
   const img=$('#bgphoto');
@@ -553,17 +581,19 @@ function loadBgUrl(url,quiet){
     if(i>=steps.length){img.style.display='none';if(!quiet)alert('Could not load that image URL');return;}
     const s=steps[i++];
     if(s.cors)img.setAttribute('crossorigin','anonymous');else img.removeAttribute('crossorigin');
-    img.onload=()=>{img.style.display='block';};
+    img.onload=()=>{img.style.display='block';applyBgAlpha();$('#bgAlphaWrap').style.display='';};
     img.onerror=tryStep;
     img.src=s.src;
   };
   tryStep();
 }
 (function(){
+  /* restore saved alpha into slider before loading so applyBgAlpha() reads the right value */
+  try{const a=localStorage.getItem('wc26bgalpha');if(a)$('#bgAlpha').value=a;}catch(_){}
   let saved='';try{saved=localStorage.getItem('wc26bg')||'';}catch(_){}
   if(saved){loadBgUrl(saved,true);return;}
   const img=$('#bgphoto'),cands=['bg.jpg','bg.png','bg.webp'];let i=0;
-  img.onload=()=>{img.style.display='block';};
+  img.onload=()=>{img.style.display='block';applyBgAlpha();$('#bgAlphaWrap').style.display='';};
   img.onerror=()=>{if(++i<cands.length)img.src=cands[i];};
   img.src=cands[0];
 })();
@@ -574,9 +604,10 @@ $('#bgbtn').addEventListener('click',()=>{
   const url=u.trim();
   try{url?localStorage.setItem('wc26bg',url):localStorage.removeItem('wc26bg');}catch(_){}
   const img=$('#bgphoto');
-  if(!url){img.style.display='none';img.removeAttribute('src');return;}
+  if(!url){img.style.display='none';img.removeAttribute('src');$('#bgAlphaWrap').style.display='none';return;}
   loadBgUrl(url);
 });
+$('#bgAlpha').addEventListener('input',applyBgAlpha);
 
 $('#tvToggle').addEventListener('change',e=>{
   document.body.classList.toggle('hide-tv',!e.target.checked);
@@ -586,11 +617,57 @@ $('#themeSel').addEventListener('change',e=>{
   document.body.dataset.theme=e.target.value;
   try{localStorage.setItem('wc26theme',e.target.value);}catch(_){}
 });
+/* timezone picker: viewer's local zone first, then one curated entry per UTC offset */
+const TZ_CHOICES=[
+  ['Pacific/Honolulu','Hawaii'],
+  ['America/Anchorage','Alaska'],
+  ['America/Los_Angeles','Los Angeles · Vancouver · Seattle'],
+  ['America/Mexico_City','Mexico City · Denver'],
+  ['America/Chicago','Chicago · Dallas · Houston'],
+  ['America/New_York','New York · Toronto · Miami'],
+  ['America/Sao_Paulo','São Paulo · Buenos Aires'],
+  ['Atlantic/Reykjavik','Reykjavik · Accra'],
+  ['Europe/London','London · Dublin · Lisbon'],
+  ['Europe/Paris','Paris · Berlin · Madrid · Rome'],
+  ['Europe/Istanbul','Istanbul · Riyadh · Nairobi'],
+  ['Asia/Dubai','Dubai'],
+  ['Asia/Karachi','Karachi'],
+  ['Asia/Kolkata','India'],
+  ['Asia/Dhaka','Dhaka'],
+  ['Asia/Bangkok','Bangkok · Jakarta · Hanoi'],
+  ['Asia/Hong_Kong','Hong Kong · Singapore · Beijing · Taipei'],
+  ['Asia/Tokyo','Tokyo · Seoul'],
+  ['Australia/Sydney','Sydney · Melbourne · Brisbane'],
+  ['Pacific/Auckland','Auckland']];
+(function(){
+  const sel=$('#tzSel');
+  /* "(+8)" style offset, accurate for the tournament dates (June/July 2026) */
+  const off=tz=>{
+    try{
+      const fp=new Intl.DateTimeFormat('en-GB',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(TZ_REF);
+      const v=(fp.find(p=>p.type==='timeZoneName')||{}).value||'';
+      return v.replace('GMT','')||'+0';
+    }catch(_){return'';}
+  };
+  let html=`<option value="${LOCAL_TZ}">📍 My local time (${off(LOCAL_TZ)})</option>`;
+  html+=TZ_CHOICES.map(([z,cities])=>`<option value="${z}">(${off(z)}) ${cities}</option>`).join('');
+  sel.innerHTML=html;
+  sel.value=currentTZ;
+})();
+$('#tzSel').addEventListener('change',e=>{
+  currentTZ=e.target.value;
+  updateTZLabels();
+  renderAll();
+  try{localStorage.setItem('wc26tz',currentTZ);}catch(_){}
+});
 try{
   if(localStorage.getItem('wc26tv')==='0'){$('#tvToggle').checked=false;document.body.classList.add('hide-tv');}
   const th=localStorage.getItem('wc26theme');
-  if(th){document.body.dataset.theme=th;$('#themeSel').value=th;}
+  if(th&&$(`#themeSel option[value="${th}"]`)){document.body.dataset.theme=th;$('#themeSel').value=th;}
+  const savedTZ=localStorage.getItem('wc26tz');
+  if(savedTZ&&$(`#tzSel option[value="${savedTZ}"]`)){currentTZ=savedTZ;$('#tzSel').value=savedTZ;}
 }catch(_){}
+updateTZLabels();
 
 async function capture(withArt){
   const canvas=await html2canvas($('#stage'),{
