@@ -2,7 +2,9 @@
 
 A single-page, auto-updating guide to all 104 matches of the FIFA World Cup 2026 (USA · Canada · Mexico, 11 June – 19 July), designed as a 2560×1440 wallpaper.
 
-**Live demo:** enable GitHub Pages on this repo (Settings → Pages → Deploy from branch → `main` / root) and open `https://<your-username>.github.io/<repo-name>/`
+**Live demo:** https://lmsam.github.io/worldcup2026-wallpaper/
+
+(Enable GitHub Pages: Settings → Pages → Deploy from branch → `main` / root)
 
 ## Features
 
