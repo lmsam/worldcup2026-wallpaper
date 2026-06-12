@@ -40,7 +40,7 @@ body[data-theme="all"]{ /* All White */
 html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;overflow-x:hidden}
 #viewport{width:100vw;display:flex;justify-content:center}
 #scaler{transform-origin:top left}
-#stage{width:2560px;height:1440px;background:var(--stagebg);display:flex;flex-direction:column;padding:12px 14px 8px;position:relative;overflow:hidden}
+#stage{--boxalpha:1;width:2560px;height:1440px;background:var(--stagebg);display:flex;flex-direction:column;padding:12px 14px 8px;position:relative;overflow:hidden}
 #stage>*{position:relative;z-index:1}
 /* ---- background decor ---- */
 #decor{position:absolute;inset:0;z-index:0!important;pointer-events:none}
@@ -70,11 +70,31 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 #hdr button{background:var(--accent);color:#1a1404;border:0;border-radius:6px;padding:8px 14px;font-size:15px;font-weight:700;cursor:pointer}
 #hdr button:hover{filter:brightness(1.08)}
 .capturing .ctrl{display:none!important}
+/* ---- settings modal ---- */
+#setmodal{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+#setmodal.open{display:flex}
+.capturing #setmodal{display:none!important}
+#setpanel{width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px 28px;display:flex;flex-direction:column;gap:15px;box-shadow:0 18px 60px rgba(0,0,0,.55);font-size:18px}
+.sethead{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:900;letter-spacing:1px}
+#setclose{background:none;border:0;color:var(--dim);font-size:22px;cursor:pointer;padding:0 4px}
+#setclose:hover{color:var(--txt)}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:16px;color:var(--dim)}
+.setrow>span{white-space:nowrap}
+#setpanel select,#setpanel input[type=text]{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:9px 10px;font-size:16px;min-width:0}
+.setrow select{max-width:360px}
+#bgUrl,#bgHist{width:100%}
+#setpanel input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+#bgAlpha,#boxAlpha{flex:1;accent-color:var(--accent)}
+.setsep{border-top:1px solid var(--line)}
+.setrow.btns{justify-content:flex-end;gap:10px}
+.setrow.btns button{border:0;border-radius:6px;padding:9px 16px;font-size:15px;font-weight:700;cursor:pointer;background:var(--accent);color:#1a1404}
+.setrow.btns button.ghost{background:var(--card);color:var(--dim);border:1px solid var(--line)}
+.setrow.btns button:hover{filter:brightness(1.08)}
 /* ---- layout ---- */
 #main{flex:1;display:flex;gap:8px;min-height:0}
 .side{width:520px;display:flex;flex-direction:column;gap:7px}
 /* ---- group box ---- */
-.group{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.group{flex:1;background:color-mix(in srgb,var(--panel) calc(var(--boxalpha)*100%),transparent);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .ghead{display:flex;align-items:center;gap:10px;padding:2px 10px;font-size:17px;font-weight:900;letter-spacing:1.8px;color:#10131a;flex:none}
 .gbody{flex:1;display:flex;min-height:0}
 .rank{width:182px;flex:none;padding:4px 7px 5px 9px;display:flex;flex-direction:column;justify-content:space-evenly;border-right:1px solid var(--line)}
@@ -102,7 +122,7 @@ body.hide-tv .tv{visibility:hidden}
 #bracket{flex:1;min-width:0;position:relative}
 #wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #wires path{stroke:var(--wire);stroke-width:2.5;fill:none;opacity:.85}
-.bcard{--rc:var(--line);position:absolute;background:linear-gradient(150deg,var(--card2) 0%,var(--card) 60%);border:1px solid var(--line);border-radius:10px;padding:8px 11px 8px 15px;display:flex;flex-direction:column;justify-content:space-evenly;box-shadow:0 3px 10px rgba(0,0,0,.22)}
+.bcard{--rc:var(--line);position:absolute;background:linear-gradient(150deg,color-mix(in srgb,var(--card2) calc(var(--boxalpha)*100%),transparent) 0%,color-mix(in srgb,var(--card) calc(var(--boxalpha)*100%),transparent) 60%);border:1px solid var(--line);border-radius:10px;padding:8px 11px 8px 15px;display:flex;flex-direction:column;justify-content:space-evenly;box-shadow:0 3px 10px rgba(0,0,0,.22)}
 .bcard::before{content:'';position:absolute;left:-1px;top:-1px;bottom:-1px;width:5px;border-radius:10px 0 0 10px;background:var(--rc)}
 .bcard.r32{--rc:#4aa8ff}.bcard.r16{--rc:#2fd6c3}.bcard.qf{--rc:#ff9434}.bcard.sf{--rc:#b97bff}.bcard.tp{--rc:#e0a458}
 .bcard .meta{font-size:14px;color:var(--faint);display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -132,6 +152,7 @@ body.hide-tv .tv{visibility:hidden}
 .roundtitle{position:absolute;font-size:14.5px;letter-spacing:1.6px;color:var(--dim);text-align:center;font-weight:800}
 #finhead{position:absolute;text-align:center}
 #finhead .trophy{font-size:52px;line-height:1;filter:drop-shadow(0 0 18px var(--glow1))}
+#finhead .trophy img{height:60px;width:auto;display:block;margin:0 auto}
 #finhead h2{font-size:29px;letter-spacing:3px;color:var(--accent);font-weight:900}
 #foot{height:24px;display:flex;align-items:center;justify-content:center;gap:18px;font-size:14px;color:var(--faint)}
 .legend{display:flex;gap:6px;align-items:center}
@@ -164,16 +185,7 @@ body.hide-tv .tv{visibility:hidden}
     <div class="spacer"></div>
     <div id="updated"></div>
     <div class="ctrl">
-      <select id="themeSel">
-        <option value="usa">🇺🇸 USA Blue</option>
-        <option value="canada">🇨🇦 Canada Red</option>
-        <option value="mexico">🇲🇽 Mexico Green</option>
-        <option value="all">⚪ All White</option>
-      </select>
-      <select id="tzSel" title="Display timezone"></select>
-      <label><input type="checkbox" id="tvToggle" checked> UK TV Channels</label>
-      <button id="bgbtn" title="Set a background image by URL">🖼 Background</button>
-      <label id="bgAlphaWrap" style="display:none"><input type="range" id="bgAlpha" min="5" max="80" value="13" style="width:64px;vertical-align:middle"> Opacity</label>
+      <button id="setbtn" title="Settings">⚙ Settings</button>
       <button id="dl">⬇ Wallpaper PNG</button>
     </div>
   </div>
@@ -181,6 +193,27 @@ body.hide-tv .tv{visibility:hidden}
     <div class="side" id="sideL"></div>
     <div id="bracket"></div>
     <div class="side" id="sideR"></div>
+  </div>
+  <div id="setmodal">
+    <div id="setpanel">
+      <div class="sethead"><span>⚙ Settings</span><button id="setclose" title="Close">✕</button></div>
+      <div class="setrow"><span>Colour theme</span>
+        <select id="themeSel">
+          <option value="usa">🇺🇸 USA Blue</option>
+          <option value="canada">🇨🇦 Canada Red</option>
+          <option value="mexico">🇲🇽 Mexico Green</option>
+          <option value="all">⚪ All White</option>
+        </select></div>
+      <div class="setrow"><span>Timezone</span><select id="tzSel" title="Display timezone"></select></div>
+      <div class="setrow"><span>UK TV channels (BBC / ITV)</span><input type="checkbox" id="tvToggle" checked></div>
+      <div class="setsep"></div>
+      <div class="setrow"><span>Background image URL</span></div>
+      <input id="bgUrl" type="text" placeholder="https://… paste an image URL" spellcheck="false">
+      <select id="bgHist"><option value="">Previous backgrounds…</option></select>
+      <div class="setrow" id="bgAlphaWrap" style="display:none"><span>Background image opacity</span><input type="range" id="bgAlpha" min="5" max="100" value="13"></div>
+      <div class="setrow" id="boxAlphaWrap" style="display:none"><span>Tables / boxes opacity</span><input type="range" id="boxAlpha" min="20" max="100" value="100"></div>
+      <div class="setrow btns"><button id="bgRemove" class="ghost">Remove background</button><button id="bgApply">Apply background</button></div>
+    </div>
   </div>
   <div id="foot">
     <span>All kick-off times <span class="tzlabel">BST</span></span>
@@ -466,7 +499,7 @@ function renderBracket(){
   html+=`<div class="roundtitle" style="left:${mir(0)}px;top:2px;width:${bw}px">ROUND OF 32</div>`;
   html+=`<div class="roundtitle" style="left:${x16}px;top:2px;width:${bw}px">ROUND OF 16</div>`;
   html+=`<div class="roundtitle" style="left:${mir(x16)}px;top:2px;width:${bw}px">ROUND OF 16</div>`;
-  html+=`<div id="finhead" style="left:${xc}px;top:${Math.round(finY-finH/2-92)}px;width:${cw}px"><div class="trophy">🏆</div><h2>THE FINAL</h2></div>`;
+  html+=`<div id="finhead" style="left:${xc}px;top:${Math.round(finY-finH/2-92)}px;width:${cw}px"><div class="trophy"><img class="userart" src="wc-trophy.png" alt="" onerror="this.outerHTML='🏆'"></div><h2>THE FINAL</h2></div>`;
   /* --- wires --- */
   let d='';
   const seg=(...pts)=>{d+='M'+pts.map(p=>Math.round(p[0])+' '+Math.round(p[1])).join(' L ')+' ';};
@@ -560,11 +593,21 @@ function fit(){
 }
 window.addEventListener('resize',fit);
 
-/* background opacity */
+/* two independent opacity sliders: background image, and the tables/boxes over it */
 function applyBgAlpha(){
   const v=+$('#bgAlpha').value;
   $('#bgphoto').style.opacity=(v/100).toFixed(2);
   try{localStorage.setItem('wc26bgalpha',v);}catch(_){}
+}
+function applyBoxAlpha(){
+  const v=+$('#boxAlpha').value;
+  $('#stage').style.setProperty('--boxalpha',(v/100).toFixed(2));
+  try{localStorage.setItem('wc26boxalpha',v);}catch(_){}
+}
+function bgShown(){
+  $('#bgphoto').style.display='block';
+  applyBgAlpha();applyBoxAlpha();
+  $('#bgAlphaWrap').style.display='';$('#boxAlphaWrap').style.display='';
 }
 
 /* backdrop: saved URL takes priority, else probe local bg.jpg / bg.png / bg.webp */
@@ -581,33 +624,69 @@ function loadBgUrl(url,quiet){
     if(i>=steps.length){img.style.display='none';if(!quiet)alert('Could not load that image URL');return;}
     const s=steps[i++];
     if(s.cors)img.setAttribute('crossorigin','anonymous');else img.removeAttribute('crossorigin');
-    img.onload=()=>{img.style.display='block';applyBgAlpha();$('#bgAlphaWrap').style.display='';};
+    img.onload=bgShown;
     img.onerror=tryStep;
     img.src=s.src;
   };
   tryStep();
 }
 (function(){
-  /* restore saved alpha into slider before loading so applyBgAlpha() reads the right value */
-  try{const a=localStorage.getItem('wc26bgalpha');if(a)$('#bgAlpha').value=a;}catch(_){}
+  /* restore saved alphas into the sliders before loading so the apply fns read the right values */
+  try{
+    const a=localStorage.getItem('wc26bgalpha');if(a)$('#bgAlpha').value=a;
+    const b=localStorage.getItem('wc26boxalpha');if(b)$('#boxAlpha').value=b;
+  }catch(_){}
   let saved='';try{saved=localStorage.getItem('wc26bg')||'';}catch(_){}
   if(saved){loadBgUrl(saved,true);return;}
   const img=$('#bgphoto'),cands=['bg.jpg','bg.png','bg.webp'];let i=0;
-  img.onload=()=>{img.style.display='block';applyBgAlpha();$('#bgAlphaWrap').style.display='';};
+  img.onload=bgShown;
   img.onerror=()=>{if(++i<cands.length)img.src=cands[i];};
   img.src=cands[0];
 })();
-$('#bgbtn').addEventListener('click',()=>{
-  let cur='';try{cur=localStorage.getItem('wc26bg')||'';}catch(_){}
-  const u=prompt('Background image URL (leave empty to remove):',cur);
-  if(u===null)return;
-  const url=u.trim();
+/* settings modal */
+const setmodal=$('#setmodal');
+$('#setbtn').addEventListener('click',()=>setmodal.classList.add('open'));
+$('#setclose').addEventListener('click',()=>setmodal.classList.remove('open'));
+setmodal.addEventListener('click',e=>{if(e.target===setmodal)setmodal.classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')setmodal.classList.remove('open');});
+
+/* background URL + history (last 10, most recent first) */
+function bgHistory(){try{return JSON.parse(localStorage.getItem('wc26bghist')||'[]');}catch(_){return[];}}
+function fillBgHist(){
+  const h=bgHistory();
+  $('#bgHist').innerHTML=`<option value="">Previous backgrounds… (${h.length})</option>`+
+    h.map(u=>`<option value="${u.replace(/"/g,'&quot;')}">${u.length>62?u.slice(0,59)+'…':u}</option>`).join('');
+}
+function rememberBg(url){
+  const h=[url,...bgHistory().filter(u=>u!==url)].slice(0,10);
+  try{localStorage.setItem('wc26bghist',JSON.stringify(h));}catch(_){}
+  fillBgHist();
+}
+function setBg(url){
   try{url?localStorage.setItem('wc26bg',url):localStorage.removeItem('wc26bg');}catch(_){}
   const img=$('#bgphoto');
-  if(!url){img.style.display='none';img.removeAttribute('src');$('#bgAlphaWrap').style.display='none';return;}
+  if(!url){
+    img.style.display='none';img.removeAttribute('src');
+    $('#bgAlphaWrap').style.display='none';$('#boxAlphaWrap').style.display='none';
+    $('#stage').style.removeProperty('--boxalpha');
+    return;
+  }
+  rememberBg(url);
   loadBgUrl(url);
+}
+$('#bgApply').addEventListener('click',()=>{const u=$('#bgUrl').value.trim();if(u)setBg(u);});
+$('#bgUrl').addEventListener('keydown',e=>{if(e.key==='Enter'){const u=e.target.value.trim();if(u)setBg(u);}});
+$('#bgRemove').addEventListener('click',()=>{$('#bgUrl').value='';setBg('');});
+$('#bgHist').addEventListener('change',e=>{
+  if(!e.target.value)return;
+  $('#bgUrl').value=e.target.value;
+  setBg(e.target.value);
+  e.target.selectedIndex=0;
 });
+fillBgHist();
+try{$('#bgUrl').value=localStorage.getItem('wc26bg')||'';}catch(_){}
 $('#bgAlpha').addEventListener('input',applyBgAlpha);
+$('#boxAlpha').addEventListener('input',applyBoxAlpha);
 
 $('#tvToggle').addEventListener('change',e=>{
   document.body.classList.toggle('hide-tv',!e.target.checked);
