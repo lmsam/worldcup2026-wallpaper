@@ -228,6 +228,36 @@ body.hide-tv .tv{visibility:hidden}
 #foot{height:24px;display:flex;align-items:center;justify-content:center;gap:18px;font-size:14px;color:var(--faint)}
 .legend{display:flex;gap:6px;align-items:center}
 .dot{width:9px;height:9px;border-radius:50%}
+/* ============ CALENDAR MODE (same stage — themes/bg/capture all apply) ============ */
+body[data-mode="calendar"] #main{display:none}
+body[data-mode="calendar"] #topart{display:none} /* the art lives in the 10 June cell instead */
+#calmain{flex:1;display:none;flex-direction:column;min-height:0;gap:7px;padding-top:2px}
+body[data-mode="calendar"] #calmain{display:flex}
+#calhead{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;flex:none}
+#calhead span{text-align:center;font-size:19px;font-weight:900;letter-spacing:2.5px;color:var(--dim)}
+#calgrid{flex:1;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:7px;min-height:0}
+.cday{background:var(--panelA);border:1px solid var(--line);border-radius:9px;padding:4px 8px 5px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.cday.off{opacity:.3;background:none}
+.cday.today{border-color:var(--accent);box-shadow:0 0 16px var(--glow1)}
+.cday .dnum{font-size:24px;font-weight:900;color:var(--dim);flex:none;display:flex;align-items:baseline;gap:8px}
+.cday.today .dnum{color:var(--accent)}
+.cday .dnum .mon{font-size:14px;letter-spacing:1.5px;color:var(--faint);font-weight:700}
+.cday .mlist{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;min-height:0}
+.cm{display:flex;align-items:baseline;gap:5px;font-size:25px;font-weight:700;white-space:nowrap;overflow:hidden;min-height:0;line-height:1.1}
+.cm .t{font-size:18px;color:var(--faint);font-weight:600;width:64px;flex:none}
+.cm.ft .t,.cm.live .t{width:auto;min-width:30px} /* FT/clock is short — release the column for the score box */
+.cm .tm{display:inline-flex;align-items:baseline;gap:4px}
+.cm .tm img{align-self:center;transform:translateY(1px)}
+.cm.live .t,.cm.live .sc{color:var(--live)}
+.cm.ft{opacity:.62}
+.cm .sc{font-weight:800;font-size:20px;background:var(--scbg);border-radius:4px;padding:0 5px}
+.cm .vs{color:var(--faint);font-weight:600;font-size:18px}
+.cm .chip{font-size:15px;font-weight:800;letter-spacing:.5px;color:#10131a;border-radius:4px;padding:1px 6px;flex:none}
+.cm .ph{color:var(--faint);font-weight:600;font-size:19px;overflow:hidden;text-overflow:ellipsis}
+.cm .tv{margin-left:auto;flex:none;font-size:13px;width:38px;padding:3px 0;border-radius:4px}
+.cday .calart{flex:1;min-height:0;width:92%;object-fit:contain;align-self:center;filter:drop-shadow(0 4px 14px rgba(0,0,0,.4))}
+body[data-theme="news"] .cday{border-radius:0}
+body[data-theme="comic"] .cday,body[data-theme="mario"] .cday{border-width:2px}
 </style>
 </head>
 <body>
@@ -257,6 +287,7 @@ body.hide-tv .tv{visibility:hidden}
     <div class="spacer"></div>
     <div id="updated"></div>
     <div class="ctrl">
+      <button id="schedBtn">📅 Calendar</button>
       <button id="setbtn" title="Settings">⚙ Settings</button>
       <button id="dl">⬇ Wallpaper PNG</button>
     </div>
@@ -265,6 +296,10 @@ body.hide-tv .tv{visibility:hidden}
     <div class="side" id="sideL"></div>
     <div id="bracket"></div>
     <div class="side" id="sideR"></div>
+  </div>
+  <div id="calmain">
+    <div id="calhead"><span>MONDAY</span><span>TUESDAY</span><span>WEDNESDAY</span><span>THURSDAY</span><span>FRIDAY</span><span>SATURDAY</span><span>SUNDAY</span></div>
+    <div id="calgrid"></div>
   </div>
   <div id="setmodal">
     <div id="setpanel">
@@ -624,7 +659,10 @@ function renderBracket(){
   seg([xc+cw/2,sf2Y-ch/2],[xc+cw/2,finY+finH/2]);
   br.innerHTML=`<svg id="wires" viewBox="0 0 ${W} ${H}"><path d="${d}"/></svg>`+html;
 }
-function renderAll(){renderGroups();renderBracket();}
+function renderAll(){
+  if(document.body.dataset.mode==='calendar')renderCalendar();
+  else{renderGroups();renderBracket();}
+}
 
 /* ================= LIVE DATA ================= */
 const groupPairs=new Set(FIX.map(f=>pairKey(f[1],f[2])));
@@ -840,21 +878,20 @@ const TZ_CHOICES=[
   ['Asia/Tokyo','Tokyo · Seoul'],
   ['Australia/Sydney','Sydney · Melbourne · Brisbane'],
   ['Pacific/Auckland','Auckland']];
-(function(){
-  const sel=$('#tzSel');
-  /* "(+8)" style offset, accurate for the tournament dates (June/July 2026) */
-  const off=tz=>{
-    try{
-      const fp=new Intl.DateTimeFormat('en-GB',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(TZ_REF);
-      const v=(fp.find(p=>p.type==='timeZoneName')||{}).value||'';
-      return v.replace('GMT','')||'+0';
-    }catch(_){return'';}
-  };
-  let html=`<option value="${LOCAL_TZ}">📍 My local time (${off(LOCAL_TZ)})</option>`;
-  html+=TZ_CHOICES.map(([z,cities])=>`<option value="${z}">(${off(z)}) ${cities}</option>`).join('');
-  sel.innerHTML=html;
-  sel.value=currentTZ;
-})();
+/* "(+8)" offset label accurate for tournament dates */
+const tzOff=tz=>{
+  try{
+    const fp=new Intl.DateTimeFormat('en-GB',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(TZ_REF);
+    const v=(fp.find(p=>p.type==='timeZoneName')||{}).value||'';
+    return v.replace('GMT','')||'+0';
+  }catch(_){return'';}
+};
+function populateTZSel(sel){
+  let html=`<option value="${LOCAL_TZ}">📍 My local time (${tzOff(LOCAL_TZ)})</option>`;
+  html+=TZ_CHOICES.map(([z,cities])=>`<option value="${z}">(${tzOff(z)}) ${cities}</option>`).join('');
+  sel.innerHTML=html;sel.value=currentTZ;
+}
+populateTZSel($('#tzSel'));
 $('#tzSel').addEventListener('change',e=>{
   currentTZ=e.target.value;
   updateTZLabels();
@@ -889,10 +926,100 @@ $('#dl').addEventListener('click',async()=>{
     try{url=await capture(true);}
     catch(_){url=await capture(false);} /* file:// canvas-taint fallback: export without local images */
     const a=document.createElement('a');
-    a.download='worldcup2026-wallpaper.png';a.href=url;a.click();
+    a.download=document.body.dataset.mode==='calendar'?'worldcup2026-calendar.png':'worldcup2026-wallpaper.png';
+    a.href=url;a.click();
   }catch(e){alert('Capture failed: '+e.message);}
   document.body.classList.remove('capturing');
 });
+
+/* ================= CALENDAR VIEW ================= */
+function dayKey(d){
+  return new Intl.DateTimeFormat('en-CA',{timeZone:currentTZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
+}
+function buildSchedMatches(){
+  const all=[];
+  FIX.forEach(f=>all.push({utc:utcOf(f[3]),bst:f[3],kind:'group',g:f[0],hc:f[1],ac:f[2],venue:f[4],tv:f[5]}));
+  const addKO=(slots,rnd)=>slots.forEach(s=>{
+    const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(s.t))<1800000);
+    all.push({utc:utcOf(s.t),bst:s.t,kind:'ko',rnd,venue:s.v,
+      hc:ev?ev.hc:null,ac:ev?ev.ac:null,ph:s.p||null,
+      hs:ev&&ev.state!=='pre'?ev.hs:null,as:ev&&ev.state!=='pre'?ev.as:null,
+      state:ev?ev.state:'pre',detail:ev?ev.detail:''});
+  });
+  addKO([...R32L,...R32R],'R32');addKO([...R16L,...R16R],'R16');
+  addKO([...QFL,...QFR],'QF');addKO([SF1,SF2],'SF');
+  addKO([TP],'3RD');addKO([FIN],'FINAL');
+  return all.sort((a,b)=>a.utc-b.utc);
+}
+const RCOLOR={R32:'#4aa8ff',R16:'#2fd6c3',QF:'#ff9434',SF:'#b97bff','3RD':'#e0a458',FINAL:'#f8dd82'};
+/* '1st Group E'->'1E', '2nd Group C'->'2C', '3rd A/B/…'->'3rd' */
+function shortPH(p){
+  const m=p.match(/^(1)st Group ([A-L])$|^(2)nd Group ([A-L])$/);
+  if(m)return(m[1]||m[3])+(m[2]||m[4]);
+  return/^3rd/.test(p)?'3rd':p;
+}
+function calRow(m){
+  const p=parts(m.bst);
+  if(m.kind==='group'){
+    const r=results[pairKey(m.hc,m.ac)];
+    let cls='',mid='<span class="vs">v</span>',tlab=p.t;
+    if(r&&r.state!=='pre'){
+      const hs=r.hc===m.hc?r.hs:r.as,as=r.hc===m.hc?r.as:r.hs;
+      mid=`<span class="sc">${hs}–${as}</span>`;
+      if(r.state==='in'){cls='live';tlab=r.detail||'LIVE';}
+      else{cls='ft';tlab='FT';}
+    }
+    return`<div class="cm ${cls}" title="${TEAMS[m.hc][0]} v ${TEAMS[m.ac][0]} — ${m.venue}"><span class="t">${tlab}</span><span class="chip" style="background:${GACCENT[m.g]}">${m.g}</span><span class="tm">${m.hc} ${flagImg(m.hc,20)}</span>${mid}<span class="tm">${flagImg(m.ac,20)} ${m.ac}</span><span class="tv ${m.tv}">${m.tv}</span></div>`;
+  }
+  /* knockout */
+  const chip=`<span class="chip" style="background:${RCOLOR[m.rnd]}">${m.rnd}</span>`;
+  const cls=m.state==='in'?'live':m.state==='post'?'ft':'';
+  const tlab=m.state==='in'?(m.detail||'LIVE'):m.state==='post'?'FT':p.t;
+  let body;
+  if(m.hc&&m.ac){
+    const mid=m.hs!==null?`<span class="sc">${m.hs}–${m.as}</span>`:'<span class="vs">v</span>';
+    body=`<span class="tm">${m.hc} ${flagImg(m.hc,20)}</span>${mid}<span class="tm">${flagImg(m.ac,20)} ${m.ac}</span>`;
+  }else if(m.ph){
+    body=`<span class="ph">${shortPH(m.ph[0])} v ${shortPH(m.ph[1])}</span>`;
+  }else{
+    body=`<span class="ph">${m.venue}</span>`;
+  }
+  return`<div class="cm ${cls}" title="${m.venue}"><span class="t">${tlab}</span>${chip} ${body}</div>`;
+}
+function renderCalendar(){
+  const matches=buildSchedMatches();
+  const byDay={};
+  matches.forEach(m=>{const dk=dayKey(new Date(m.utc));(byDay[dk]=byDay[dk]||[]).push(m);});
+  const dks=Object.keys(byDay).sort();
+  /* expand to whole weeks (Mon–Sun) around the tournament, in the viewer's timezone */
+  const D=s=>new Date(s+'T12:00:00Z');
+  const first=D(dks[0]);first.setUTCDate(first.getUTCDate()-((first.getUTCDay()+6)%7));
+  const last=D(dks[dks.length-1]);last.setUTCDate(last.getUTCDate()+(6-((last.getUTCDay()+6)%7)));
+  const todayDk=dayKey(new Date());
+  const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  let cells='';
+  for(let t=+first;t<=+last;t+=86400000){
+    const d=new Date(t),dk=d.toISOString().slice(0,10);
+    const ms=byDay[dk]||[];
+    const showMon=d.getUTCDate()===1||t===+first;
+    /* 10 June is always empty (first kickoff 11 Jun 20:00 BST) — host the tournament art there */
+    const art=dk==='2026-06-10';
+    cells+=`<div class="cday ${ms.length||art?'':'off'} ${dk===todayDk?'today':''}">
+      <div class="dnum">${d.getUTCDate()}${showMon?`<span class="mon">${MON[d.getUTCMonth()]}</span>`:''}</div>
+      ${art?'<img class="calart userart" src="wc26-art-cropped.png" alt="" onerror="this.remove()">'
+           :`<div class="mlist">${ms.map(calRow).join('')}</div>`}</div>`;
+  }
+  $('#calgrid').innerHTML=cells;
+}
+/* mode toggle — calendar lives in the same #stage, so themes, backgrounds and PNG capture all apply */
+function setMode(cal){
+  if(cal)document.body.dataset.mode='calendar';else delete document.body.dataset.mode;
+  $('#schedBtn').textContent=cal?'🏆 Bracket':'📅 Calendar';
+  renderAll();
+  try{cal?localStorage.setItem('wc26mode','calendar'):localStorage.removeItem('wc26mode');}catch(_){}
+}
+$('#schedBtn').addEventListener('click',()=>setMode(document.body.dataset.mode!=='calendar'));
+try{if(localStorage.getItem('wc26mode')==='calendar')setMode(true);}catch(_){}
 
 fit();renderAll();refresh();
 </script>
