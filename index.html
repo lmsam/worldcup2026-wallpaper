@@ -175,6 +175,7 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 .rrow .pts{color:var(--accent);text-align:right}
 .rrow .gd{color:var(--dim);text-align:right;font-size:14.5px;font-weight:600}
 .rrow.q{border-left-color:var(--accent)}
+.rrow.live .pts,.rrow.live .gd{color:var(--live)} /* provisional — includes a match in progress */
 .fixtures{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:3px 7px;min-height:0}
 .fx{display:grid;grid-template-columns:106px 1fr 36px;align-items:center;gap:4px;min-height:0}
 .fx .when{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden}
@@ -547,19 +548,22 @@ function teamRow(code,score,extra){
 function renderGroups(){
   const sideL=$('#sideL'),sideR=$('#sideR');sideL.innerHTML='';sideR.innerHTML='';
   Object.entries(GROUPS).forEach(([g,teams],i)=>{
-    /* standings: Pts -> GD -> GF (FIFA tiebreak order) */
+    /* standings: Pts -> GD -> GF (FIFA tiebreak order)
+       live matches count provisionally at the current score (0-0 = 1pt each) */
     const st={};teams.forEach(c=>st[c]={p:0,gd:0,gf:0});
+    const liveTeams=new Set();
     FIX.filter(f=>f[0]===g).forEach(f=>{
       const r=results[pairKey(f[1],f[2])];
-      if(r&&r.state==='post'){
+      if(r&&r.state!=='pre'){
         const hs=r.hc===f[1]?r.hs:r.as, as=r.hc===f[1]?r.as:r.hs;
         st[f[1]].gf+=hs;st[f[1]].gd+=hs-as;st[f[2]].gf+=as;st[f[2]].gd+=as-hs;
         if(hs>as)st[f[1]].p+=3;else if(as>hs)st[f[2]].p+=3;else{st[f[1]].p++;st[f[2]].p++;}
+        if(r.state==='in'){liveTeams.add(f[1]);liveTeams.add(f[2]);}
       }});
     const order=[...teams].sort((a,b)=>st[b].p-st[a].p||st[b].gd-st[a].gd||st[b].gf-st[a].gf);
     const rows=order.map((c,ix)=>{
       const gd=st[c].gd,gds=gd>0?'+'+gd:gd;
-      return `<div class="rrow ${ix<2?'q':''}"><span class="pos">${ix+1}</span><span>${flagImg(c)} ${c}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
+      return `<div class="rrow ${ix<2?'q':''} ${liveTeams.has(c)?'live':''}"><span class="pos">${ix+1}</span><span>${flagImg(c)} ${c}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
     }).join('');
     const fxs=FIX.filter(f=>f[0]===g).map(f=>{
       const r=results[pairKey(f[1],f[2])];let mid,cls='',stat;
