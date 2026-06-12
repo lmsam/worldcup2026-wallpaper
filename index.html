@@ -174,7 +174,7 @@ body.hide-tv .tv{visibility:hidden}
     <div class="ball b1">⚽</div><div class="ball b2">⚽</div>
     <img id="topart" class="userart" src="wc26-art.png" alt=""
          onerror="this.remove();document.querySelector('.hostflags').style.display='block'">
-    <div class="hostflags">🇨🇦🇺🇸🇲🇽</div>
+    <div class="hostflags"><img src="https://flagcdn.com/w80/ca.png" height="52" style="vertical-align:middle" alt="CAN"> <img src="https://flagcdn.com/w80/us.png" height="52" style="vertical-align:middle" alt="USA"> <img src="https://flagcdn.com/w80/mx.png" height="52" style="vertical-align:middle" alt="MEX"></div>
     <div class="year">2026</div>
     <svg class="pitch" width="1400" height="1300" viewBox="0 0 1400 1300" fill="none" stroke="currentColor" stroke-width="3">
       <line x1="700" y1="0" x2="700" y2="1300"/><circle cx="700" cy="650" r="230"/><circle cx="700" cy="650" r="8" fill="currentColor"/>
@@ -188,7 +188,7 @@ body.hide-tv .tv{visibility:hidden}
   </div>
   <div id="hdr">
     <div class="title">FIFA <b>WORLD CUP 2026</b></div>
-    <div class="sub">🇺🇸 🇨🇦 🇲🇽 USA · Canada · Mexico — Jun 11 → Jul 19 · 104 matches · All times <span class="tzlabel">BST</span></div>
+    <div class="sub"><img src="https://flagcdn.com/w20/us.png" height="13" style="vertical-align:middle" alt="🇺🇸"> <img src="https://flagcdn.com/w20/ca.png" height="13" style="vertical-align:middle" alt="🇨🇦"> <img src="https://flagcdn.com/w20/mx.png" height="13" style="vertical-align:middle" alt="🇲🇽"> USA · Canada · Mexico — Jun 11 → Jul 19 · 104 matches · All times <span class="tzlabel">BST</span></div>
     <div class="spacer"></div>
     <div id="updated"></div>
     <div class="ctrl">
@@ -206,10 +206,10 @@ body.hide-tv .tv{visibility:hidden}
       <div class="sethead"><span>⚙ Settings</span><button id="setclose" title="Close">✕</button></div>
       <div class="setrow"><span>Colour theme</span>
         <select id="themeSel">
-          <option value="usa">🇺🇸 USA Blue</option>
-          <option value="canada">🇨🇦 Canada Red</option>
-          <option value="mexico">🇲🇽 Mexico Green</option>
-          <option value="all">⚪ All White</option>
+          <option value="usa">USA Blue</option>
+          <option value="canada">Canada Red</option>
+          <option value="mexico">Mexico Green</option>
+          <option value="all">All White</option>
         </select></div>
       <div class="setrow"><span>Timezone</span><select id="tzSel" title="Display timezone"></select></div>
       <div class="setrow"><span>UK TV channels (BBC / ITV)</span><input type="checkbox" id="tvToggle" checked></div>
@@ -253,6 +253,21 @@ const GROUPS={
  D:['USA','PAR','AUS','TUR'],E:['GER','CUW','CIV','ECU'],F:['HOL','JPN','SWE','TUN'],
  G:['BEL','EGY','IRN','NZL'],H:['ESP','CPV','KSA','URU'],I:['FRA','SEN','IRQ','NOR'],
  J:['ARG','ALG','AUT','JOR'],K:['POR','COD','UZB','COL'],L:['ENG','CRO','GHA','PAN']};
+
+/* ISO 3166-1 alpha-2 codes for flagcdn.com — flag emoji don't render on Windows */
+const FLAG_ISO={
+ MEX:'mx',RSA:'za',KOR:'kr',CZE:'cz',CAN:'ca',BIH:'ba',QAT:'qa',SUI:'ch',
+ BRA:'br',MAR:'ma',HAI:'ht',SCO:'gb-sct',USA:'us',PAR:'py',AUS:'au',TUR:'tr',
+ GER:'de',CUW:'cw',CIV:'ci',ECU:'ec',HOL:'nl',JPN:'jp',SWE:'se',TUN:'tn',
+ BEL:'be',EGY:'eg',IRN:'ir',NZL:'nz',ESP:'es',CPV:'cv',KSA:'sa',URU:'uy',
+ FRA:'fr',SEN:'sn',IRQ:'iq',NOR:'no',ARG:'ar',ALG:'dz',AUT:'at',JOR:'jo',
+ POR:'pt',COD:'cd',UZB:'uz',COL:'co',ENG:'gb-eng',CRO:'hr',GHA:'gh',PAN:'pa'
+};
+function flagImg(code,h){
+ const iso=FLAG_ISO[code];
+ if(!iso)return TEAMS[code]?TEAMS[code][1]:'';
+ return`<img src="https://flagcdn.com/w40/${iso}.png" height="${h||16}" style="vertical-align:middle;display:inline-block;border-radius:1px" alt="${code}">`;
+}
 
 const GACCENT={A:'#2dd673',B:'#ff5d5d',C:'#ffd02e',D:'#4aa8ff',E:'#ff9434',F:'#2fd6c3',
  G:'#b97bff',H:'#9be345',I:'#7d8cff',J:'#ff6fb2',K:'#e0a458',L:'#54c8e8'};
@@ -414,7 +429,7 @@ let results={}, koEvents=[];
 /* ================= RENDER ================= */
 function teamRow(code,score,extra){
   const t=TEAMS[code];
-  return `<div class="team ${extra||''}"><span>${t[1]}</span><span class="nm">${t[0]}</span><span class="sc">${score??''}</span></div>`;
+  return `<div class="team ${extra||''}"><span>${flagImg(code,18)}</span><span class="nm">${t[0]}</span><span class="sc">${score??''}</span></div>`;
 }
 function renderGroups(){
   const sideL=$('#sideL'),sideR=$('#sideR');sideL.innerHTML='';sideR.innerHTML='';
@@ -431,7 +446,7 @@ function renderGroups(){
     const order=[...teams].sort((a,b)=>st[b].p-st[a].p||st[b].gd-st[a].gd||st[b].gf-st[a].gf);
     const rows=order.map((c,ix)=>{
       const gd=st[c].gd,gds=gd>0?'+'+gd:gd;
-      return `<div class="rrow ${ix<2?'q':''}"><span class="pos">${ix+1}</span><span>${TEAMS[c][1]} ${c}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
+      return `<div class="rrow ${ix<2?'q':''}"><span class="pos">${ix+1}</span><span>${flagImg(c)} ${c}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
     }).join('');
     const fxs=FIX.filter(f=>f[0]===g).map(f=>{
       const r=results[pairKey(f[1],f[2])];let mid,cls='',stat;
@@ -444,7 +459,7 @@ function renderGroups(){
       }else{mid='<span class="mid2 pre">v</span>';stat=pp.t;}
       return `<div class="fx ${cls}" title="${f[4]} — ${pp.d}, ${pp.t} ${tzLabel}">
         <span class="when">${pp.d} · <b>${stat}</b></span>
-        <div class="match"><span class="h">${TEAMS[f[1]][1]} ${f[1]}</span>${mid}<span class="a">${f[2]} ${TEAMS[f[2]][1]}</span></div>
+        <div class="match"><span class="h">${flagImg(f[1])} ${f[1]}</span>${mid}<span class="a">${f[2]} ${flagImg(f[2])}</span></div>
         <span class="tv ${f[5]}">${f[5]}</span></div>`;
     }).join('');
     const box=`<div class="group">
