@@ -13,6 +13,7 @@ body{ /* USA Blue (default) */
   --txt:#eaf1ff; --dim:#9ab4de; --faint:#6483b3;
   --accent:#f5c542; --live:#ff4d6d; --wire:#3f63a8; --scbg:rgba(0,0,0,.28);
   --glow1:rgba(245,197,66,.16); --glow2:rgba(77,140,255,.18); --glow3:rgba(255,255,255,.08);
+  --scrim:rgba(5,10,22,.55); --tshadow:0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6);
 }
 body[data-theme="canada"]{ /* Canada Red */
   --bg:#2b070b; --stagebg:radial-gradient(1300px 750px at 50% 42%,#6b1118 0%,#2b070b 72%);
@@ -34,6 +35,7 @@ body[data-theme="all"]{ /* All White */
   --txt:#1a2433; --dim:#566883; --faint:#8a9ab1;
   --accent:#0a63d6; --live:#d62f4c; --wire:#a9bacf; --scbg:rgba(26,36,51,.08);
   --glow1:rgba(10,99,214,.10); --glow2:rgba(214,47,76,.07); --glow3:rgba(20,160,90,.07);
+  --scrim:rgba(255,255,255,.6); --tshadow:0 1px 3px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7);
 }
 /* ============ BASE ============ */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -70,6 +72,11 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 #hdr button{background:var(--accent);color:#1a1404;border:0;border-radius:6px;padding:8px 14px;font-size:15px;font-weight:700;cursor:pointer}
 #hdr button:hover{filter:brightness(1.08)}
 .capturing .ctrl{display:none!important}
+/* ---- legibility over a user background image ---- */
+#stage.hasbg #hdr,#stage.hasbg #foot{background:var(--scrim);border-radius:10px}
+#stage.hasbg .roundtitle{background:var(--scrim);border-radius:6px;padding:2px 0}
+#stage.hasbg #hdr .title,#stage.hasbg #hdr .sub,#stage.hasbg #updated,#stage.hasbg #foot,
+#stage.hasbg .roundtitle,#stage.hasbg #finhead h2{text-shadow:var(--tshadow)}
 /* ---- settings modal ---- */
 #setmodal{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
 #setmodal.open{display:flex}
@@ -625,6 +632,7 @@ function applyBoxAlpha(){
 }
 function bgShown(){
   $('#bgphoto').style.display='block';
+  $('#stage').classList.add('hasbg');
   applyBgAlpha();applyBoxAlpha();
   $('#bgAlphaWrap').style.display='';$('#boxAlphaWrap').style.display='';
 }
@@ -686,6 +694,7 @@ function setBg(url){
   const img=$('#bgphoto');
   if(!url){
     img.style.display='none';img.removeAttribute('src');
+    $('#stage').classList.remove('hasbg');
     $('#bgAlphaWrap').style.display='none';$('#boxAlphaWrap').style.display='none';
     const st=$('#stage').style;
     ['--panelA','--cardA','--card2A'].forEach(p=>st.removeProperty(p));
