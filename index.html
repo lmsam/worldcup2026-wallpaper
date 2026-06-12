@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>World Cup 2026 — Live Wallpaper</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=Playfair+Display:wght@700;900&family=Russo+One&display=swap" rel="stylesheet">
 <style>
 /* ============ THEMES — official WC26 host colours ============ */
 body{ /* USA Blue (default) */
@@ -37,6 +40,67 @@ body[data-theme="all"]{ /* All White */
   --glow1:rgba(10,99,214,.10); --glow2:rgba(214,47,76,.07); --glow3:rgba(20,160,90,.07);
   --scrim:rgba(255,255,255,.6); --tshadow:0 1px 3px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7);
 }
+/* ============ ART-STYLE THEMES ============ */
+body[data-theme="shonen"]{ /* Sport-manga — white & blue manga page */
+  --bg:#eaf2ff; --stagebg:radial-gradient(1300px 780px at 50% 38%,#ffffff 0%,#e3eeff 45%,#d2e3fc 80%);
+  --panel:#ffffff; --card:#ffffff; --card2:#e9f1ff; --line:#a7c6ef;
+  --txt:#11264f; --dim:#3f5f96; --faint:#7993bf;
+  --accent:#1f5fd0; --live:#ff3b3b; --wire:#6f9fe0; --scbg:rgba(0,0,0,.06);
+  --glow1:rgba(31,95,208,.12); --glow2:rgba(120,170,255,.18); --glow3:rgba(255,255,255,.5);
+  --scrim:rgba(255,255,255,.62); --tshadow:0 1px 3px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7);
+}
+body[data-theme="news"]{ /* 80's newspaper — ink on newsprint */
+  --bg:#e7ddc7; --stagebg:linear-gradient(160deg,#f1e9d6 0%,#e7ddc7 60%,#dccfb2 100%);
+  --panel:#efe7d4; --card:#f6efdd; --card2:#ece2cb; --line:#b6a884;
+  --txt:#1c1813; --dim:#4f4636; --faint:#857a62;
+  --accent:#b5231f; --live:#b5231f; --wire:#8f846a; --scbg:rgba(0,0,0,.07);
+  --glow1:rgba(0,0,0,0); --glow2:rgba(0,0,0,0); --glow3:rgba(0,0,0,0);
+  --scrim:rgba(247,239,221,.72); --tshadow:0 1px 2px rgba(247,239,221,.9);
+}
+body[data-theme="arcade"]{ /* CRT arcade — neon on black */
+  --bg:#05060f; --stagebg:radial-gradient(1200px 720px at 50% 42%,#161a3e 0%,#0a0c1f 55%,#05060f 82%);
+  --panel:#0b1030; --card:#121a44; --card2:#1b2660; --line:#2bd6ff;
+  --txt:#eafcff; --dim:#86dcea; --faint:#5a8ea0;
+  --accent:#ff2db7; --live:#ff2db7; --wire:#2bd6ff; --scbg:rgba(0,0,0,.5);
+  --glow1:rgba(255,45,183,.22); --glow2:rgba(43,214,255,.22); --glow3:rgba(255,255,255,.06);
+}
+body[data-theme="comic"]{ /* US comic book — bold ink + halftone */
+  --bg:#eaf1ff; --stagebg:linear-gradient(160deg,#ffffff 0%,#eaf1ff 55%,#d6e4ff 100%);
+  --panel:#ffffff; --card:#ffffff; --card2:#eef4ff; --line:#15171c;
+  --txt:#15171c; --dim:#3c4350; --faint:#6c7480;
+  --accent:#e63329; --live:#e63329; --wire:#15171c; --scbg:rgba(0,0,0,.10);
+  --glow1:rgba(255,214,10,.20); --glow2:rgba(63,111,214,.14); --glow3:rgba(230,51,41,.14);
+  --scrim:rgba(255,255,255,.6); --tshadow:0 1px 3px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7);
+}
+body[data-theme="mario"]{ /* 8-bit console — SMB sky blue + bold primaries */
+  --bg:#5c94fc; --stagebg:linear-gradient(180deg,#8fb6ff 0%,#5c94fc 55%,#4880f0 100%);
+  --panel:#ffffff; --card:#ffffff; --card2:#eef3ff; --line:#15183a;
+  --txt:#15183a; --dim:#3d4a7a; --faint:#6f7aa8;
+  --accent:#e52521; --live:#e52521; --wire:#15183a; --scbg:rgba(0,0,0,.10);
+  --glow1:rgba(251,208,0,.22); --glow2:rgba(67,176,71,.16); --glow3:rgba(255,255,255,.30);
+  --scrim:rgba(255,255,255,.6); --tshadow:0 1px 3px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7);
+}
+/* ---- preset "look": display fonts, borders, textures (PNG-safe — no blend-modes/masks) ---- */
+#texture{position:absolute;inset:0;pointer-events:none;display:none}
+body[data-theme="shonen"] #texture{display:block;opacity:.5;background:repeating-linear-gradient(48deg,transparent 0 26px,rgba(20,70,160,.06) 26px 28px)}
+body[data-theme="shonen"] .title,body[data-theme="shonen"] .ghead,body[data-theme="shonen"] .roundtitle,body[data-theme="shonen"] .year,body[data-theme="shonen"] #finhead h2{font-family:'Russo One',system-ui,sans-serif}
+body[data-theme="news"]{font-family:Georgia,'Times New Roman',serif}
+body[data-theme="news"] .title,body[data-theme="news"] #finhead h2{font-family:'Playfair Display',Georgia,serif}
+body[data-theme="news"] #texture{display:block;opacity:.6;background:radial-gradient(rgba(0,0,0,.05) 1px,transparent 1.6px);background-size:6px 6px}
+body[data-theme="news"] .group,body[data-theme="news"] .bcard,body[data-theme="news"] .ghead,body[data-theme="news"] .tv,body[data-theme="news"] #setpanel{border-radius:0}
+body[data-theme="news"] .bcard{box-shadow:none}
+body[data-theme="arcade"] #texture{display:block;opacity:.5;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.28) 2px 4px)}
+body[data-theme="arcade"] .title{font-family:'Press Start 2P',monospace;font-size:24px;letter-spacing:0}
+body[data-theme="arcade"] #finhead h2{font-family:'Press Start 2P',monospace;font-size:19px;letter-spacing:1px}
+body[data-theme="comic"] #texture{display:block;opacity:.5;background:radial-gradient(circle,rgba(21,23,28,.10) 2px,transparent 2.6px);background-size:15px 15px}
+body[data-theme="comic"] .title,body[data-theme="comic"] .ghead,body[data-theme="comic"] .roundtitle,body[data-theme="comic"] .year,body[data-theme="comic"] #finhead h2{font-family:'Bangers',cursive;letter-spacing:2px}
+body[data-theme="comic"] .group,body[data-theme="comic"] .bcard{border-width:3px;border-color:#15171c}
+body[data-theme="comic"] .rrow.q{border-left-color:#e63329}
+body[data-theme="mario"] #texture{display:block;opacity:.5;background:repeating-linear-gradient(0deg,rgba(0,0,0,.05) 0 1px,transparent 1px 16px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 16px)}
+body[data-theme="mario"] .title{font-family:'Press Start 2P',monospace;font-size:24px;letter-spacing:0}
+body[data-theme="mario"] #finhead h2{font-family:'Press Start 2P',monospace;font-size:19px;letter-spacing:1px}
+body[data-theme="mario"] .group,body[data-theme="mario"] .bcard{border-width:3px;border-color:#15183a}
+body[data-theme="mario"] .rrow.q{border-left-color:#e52521}
 /* ============ BASE ============ */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;overflow-x:hidden}
@@ -170,6 +234,7 @@ body.hide-tv .tv{visibility:hidden}
 <div id="viewport"><div id="scaler"><div id="stage">
   <div id="decor">
     <img id="bgphoto" alt="">
+    <div id="texture"></div>
     <div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
     <div class="ball b1">⚽</div><div class="ball b2">⚽</div>
     <img id="topart" class="userart" src="wc26-art.png" alt=""
@@ -206,10 +271,19 @@ body.hide-tv .tv{visibility:hidden}
       <div class="sethead"><span>⚙ Settings</span><button id="setclose" title="Close">✕</button></div>
       <div class="setrow"><span>Colour theme</span>
         <select id="themeSel">
-          <option value="usa">USA Blue</option>
-          <option value="canada">Canada Red</option>
-          <option value="mexico">Mexico Green</option>
-          <option value="all">All White</option>
+          <optgroup label="Host nations">
+            <option value="usa">USA Blue</option>
+            <option value="canada">Canada Red</option>
+            <option value="mexico">Mexico Green</option>
+            <option value="all">All White</option>
+          </optgroup>
+          <optgroup label="Art styles">
+            <option value="shonen">Sport Manga</option>
+            <option value="news">80's Newsprint</option>
+            <option value="arcade">Arcade Neon</option>
+            <option value="comic">Comic Pow</option>
+            <option value="mario">8-Bit Console</option>
+          </optgroup>
         </select></div>
       <div class="setrow"><span>Timezone</span><select id="tzSel" title="Display timezone"></select></div>
       <div class="setrow"><span>UK TV channels (BBC / ITV)</span><input type="checkbox" id="tvToggle" checked></div>
@@ -795,6 +869,7 @@ try{
 updateTZLabels();
 
 async function capture(withArt){
+  try{await document.fonts.ready;}catch(_){} /* themed web fonts must be loaded or html2canvas falls back */
   const canvas=await html2canvas($('#stage'),{
     width:2560,height:1440,scale:1.5,useCORS:true,
     backgroundColor:getComputedStyle(document.body).getPropertyValue('--bg').trim(),
