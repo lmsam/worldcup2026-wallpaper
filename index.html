@@ -40,7 +40,7 @@ body[data-theme="all"]{ /* All White */
 html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;overflow-x:hidden}
 #viewport{width:100vw;display:flex;justify-content:center}
 #scaler{transform-origin:top left}
-#stage{--boxalpha:1;width:2560px;height:1440px;background:var(--stagebg);display:flex;flex-direction:column;padding:12px 14px 8px;position:relative;overflow:hidden}
+#stage{--panelA:var(--panel);--cardA:var(--card);--card2A:var(--card2);width:2560px;height:1440px;background:var(--stagebg);display:flex;flex-direction:column;padding:12px 14px 8px;position:relative;overflow:hidden}
 #stage>*{position:relative;z-index:1}
 /* ---- background decor ---- */
 #decor{position:absolute;inset:0;z-index:0!important;pointer-events:none}
@@ -94,7 +94,7 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 #main{flex:1;display:flex;gap:8px;min-height:0}
 .side{width:520px;display:flex;flex-direction:column;gap:7px}
 /* ---- group box ---- */
-.group{flex:1;background:color-mix(in srgb,var(--panel) calc(var(--boxalpha)*100%),transparent);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.group{flex:1;background:var(--panelA);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .ghead{display:flex;align-items:center;gap:10px;padding:2px 10px;font-size:17px;font-weight:900;letter-spacing:1.8px;color:#10131a;flex:none}
 .gbody{flex:1;display:flex;min-height:0}
 .rank{width:182px;flex:none;padding:4px 7px 5px 9px;display:flex;flex-direction:column;justify-content:space-evenly;border-right:1px solid var(--line)}
@@ -122,7 +122,7 @@ body.hide-tv .tv{visibility:hidden}
 #bracket{flex:1;min-width:0;position:relative}
 #wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #wires path{stroke:var(--wire);stroke-width:2.5;fill:none;opacity:.85}
-.bcard{--rc:var(--line);position:absolute;background:linear-gradient(150deg,color-mix(in srgb,var(--card2) calc(var(--boxalpha)*100%),transparent) 0%,color-mix(in srgb,var(--card) calc(var(--boxalpha)*100%),transparent) 60%);border:1px solid var(--line);border-radius:10px;padding:8px 11px 8px 15px;display:flex;flex-direction:column;justify-content:space-evenly;box-shadow:0 3px 10px rgba(0,0,0,.22)}
+.bcard{--rc:var(--line);position:absolute;background:linear-gradient(150deg,var(--card2A) 0%,var(--cardA) 60%);border:1px solid var(--line);border-radius:10px;padding:8px 11px 8px 15px;display:flex;flex-direction:column;justify-content:space-evenly;box-shadow:0 3px 10px rgba(0,0,0,.22)}
 .bcard::before{content:'';position:absolute;left:-1px;top:-1px;bottom:-1px;width:5px;border-radius:10px 0 0 10px;background:var(--rc)}
 .bcard.r32{--rc:#4aa8ff}.bcard.r16{--rc:#2fd6c3}.bcard.qf{--rc:#ff9434}.bcard.sf{--rc:#b97bff}.bcard.tp{--rc:#e0a458}
 .bcard .meta{font-size:14px;color:var(--faint);display:flex;justify-content:space-between;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -152,7 +152,7 @@ body.hide-tv .tv{visibility:hidden}
 .roundtitle{position:absolute;font-size:14.5px;letter-spacing:1.6px;color:var(--dim);text-align:center;font-weight:800}
 #finhead{position:absolute;text-align:center}
 #finhead .trophy{font-size:52px;line-height:1;filter:drop-shadow(0 0 18px var(--glow1))}
-#finhead .trophy img{height:60px;width:auto;display:block;margin:0 auto}
+#finhead .trophy img{height:130px;width:auto;display:block;margin:0 auto}
 #finhead h2{font-size:29px;letter-spacing:3px;color:var(--accent);font-weight:900}
 #foot{height:24px;display:flex;align-items:center;justify-content:center;gap:18px;font-size:14px;color:var(--faint)}
 .legend{display:flex;gap:6px;align-items:center}
@@ -499,7 +499,7 @@ function renderBracket(){
   html+=`<div class="roundtitle" style="left:${mir(0)}px;top:2px;width:${bw}px">ROUND OF 32</div>`;
   html+=`<div class="roundtitle" style="left:${x16}px;top:2px;width:${bw}px">ROUND OF 16</div>`;
   html+=`<div class="roundtitle" style="left:${mir(x16)}px;top:2px;width:${bw}px">ROUND OF 16</div>`;
-  html+=`<div id="finhead" style="left:${xc}px;top:${Math.round(finY-finH/2-92)}px;width:${cw}px"><div class="trophy"><img class="userart" src="wc-trophy.png" alt="" onerror="this.outerHTML='🏆'"></div><h2>THE FINAL</h2></div>`;
+  html+=`<div id="finhead" style="left:${xc}px;bottom:${Math.round(H-(finY-finH/2)+6)}px;width:${cw}px"><div class="trophy"><img class="userart" src="wc-trophy.png" alt="" onerror="this.outerHTML='🏆'"></div><h2>THE FINAL</h2></div>`;
   /* --- wires --- */
   let d='';
   const seg=(...pts)=>{d+='M'+pts.map(p=>Math.round(p[0])+' '+Math.round(p[1])).join(' L ')+' ';};
@@ -586,12 +586,22 @@ document.addEventListener('visibilitychange',()=>{
 });
 
 /* ================= UI ================= */
+/* fit to the LAYOUT viewport (clientWidth/Height), not window.innerWidth:
+   pinch-zoom on mobile shrinks the visual viewport but not the layout one,
+   so native zoom no longer triggers a re-fit / blank page */
+let fitW=0,fitH=0;
 function fit(){
-  const s=Math.min(window.innerWidth/2560,window.innerHeight/1440);
+  fitW=document.documentElement.clientWidth;
+  fitH=document.documentElement.clientHeight;
+  const s=Math.min(fitW/2560,fitH/1440);
   $('#scaler').style.transform=`scale(${s})`;
   $('#scaler').style.width=2560*s+'px';$('#scaler').style.height=1440*s+'px';
 }
-window.addEventListener('resize',fit);
+window.addEventListener('resize',()=>{
+  const w=document.documentElement.clientWidth,h=document.documentElement.clientHeight;
+  /* ignore height-only wobble from the mobile URL bar; refit on real changes */
+  if(w!==fitW||Math.abs(h-fitH)>150)fit();
+});
 
 /* two independent opacity sliders: background image, and the tables/boxes over it */
 function applyBgAlpha(){
@@ -600,8 +610,17 @@ function applyBgAlpha(){
   try{localStorage.setItem('wc26bgalpha',v);}catch(_){}
 }
 function applyBoxAlpha(){
+  /* plain rgba() instead of CSS color-mix(): html2canvas can't parse modern color functions */
   const v=+$('#boxAlpha').value;
-  $('#stage').style.setProperty('--boxalpha',(v/100).toFixed(2));
+  const cs=getComputedStyle(document.body);
+  const rgba=name=>{
+    const n=parseInt(cs.getPropertyValue(name).trim().slice(1),16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${(v/100).toFixed(2)})`;
+  };
+  const st=$('#stage').style;
+  st.setProperty('--panelA',rgba('--panel'));
+  st.setProperty('--cardA',rgba('--card'));
+  st.setProperty('--card2A',rgba('--card2'));
   try{localStorage.setItem('wc26boxalpha',v);}catch(_){}
 }
 function bgShown(){
@@ -668,7 +687,8 @@ function setBg(url){
   if(!url){
     img.style.display='none';img.removeAttribute('src');
     $('#bgAlphaWrap').style.display='none';$('#boxAlphaWrap').style.display='none';
-    $('#stage').style.removeProperty('--boxalpha');
+    const st=$('#stage').style;
+    ['--panelA','--cardA','--card2A'].forEach(p=>st.removeProperty(p));
     return;
   }
   rememberBg(url);
@@ -694,6 +714,8 @@ $('#tvToggle').addEventListener('change',e=>{
 });
 $('#themeSel').addEventListener('change',e=>{
   document.body.dataset.theme=e.target.value;
+  /* re-derive the translucent box colours from the new theme's palette */
+  if($('#boxAlphaWrap').style.display!=='none')applyBoxAlpha();
   try{localStorage.setItem('wc26theme',e.target.value);}catch(_){}
 });
 /* timezone picker: viewer's local zone first, then one curated entry per UTC offset */
