@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=Playfair+Display:wght@700;900&family=Russo+One&display=swap" rel="stylesheet">
 <style>
 /* ============ THEMES — official WC26 host colours ============ */
-body{ /* USA Blue (default) */
+body{ /* USA (Blue) (default) */
   --bg:#081530; --stagebg:radial-gradient(1300px 750px at 50% 42%,#16336e 0%,#081530 72%);
   --panel:#0e2147; --card:#163059; --card2:#1d3e74; --line:#2d5093;
   --txt:#eaf1ff; --dim:#9ab4de; --faint:#6483b3;
@@ -18,21 +18,21 @@ body{ /* USA Blue (default) */
   --glow1:rgba(245,197,66,.16); --glow2:rgba(77,140,255,.18); --glow3:rgba(255,255,255,.08);
   --scrim:rgba(5,10,22,.55); --tshadow:0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6);
 }
-body[data-theme="canada"]{ /* Canada Red */
+body[data-theme="canada"]{ /* Canada (Red) */
   --bg:#2b070b; --stagebg:radial-gradient(1300px 750px at 50% 42%,#6b1118 0%,#2b070b 72%);
   --panel:#3b0d12; --card:#4c1218; --card2:#5e1a20; --line:#82303a;
   --txt:#fff0f1; --dim:#e3aab0; --faint:#b3747c;
   --accent:#ffd166; --live:#6fd6ff; --wire:#9a3b46; --scbg:rgba(0,0,0,.3);
   --glow1:rgba(255,209,102,.14); --glow2:rgba(255,255,255,.10); --glow3:rgba(255,77,90,.16);
 }
-body[data-theme="mexico"]{ /* Mexico Green */
+body[data-theme="mexico"]{ /* Mexico (Green) */
   --bg:#04190c; --stagebg:radial-gradient(1300px 750px at 50% 45%,#0c3a1c 0%,#04190c 75%);
   --panel:#0a2a14; --card:#103a1d; --card2:#155028; --line:#1f5e31;
   --txt:#f0fbf2; --dim:#9ccfa8; --faint:#5f8f6c;
   --accent:#ffd84d; --live:#ff5a5a; --wire:#2c7a42; --scbg:rgba(0,0,0,.3);
   --glow1:rgba(255,216,77,.13); --glow2:rgba(70,200,110,.16); --glow3:rgba(255,255,255,.06);
 }
-body[data-theme="all"]{ /* All White */
+body[data-theme="all"]{ /* WC2026 (White) */
   --bg:#e9edf3; --stagebg:linear-gradient(160deg,#ffffff 0%,#eef2f8 55%,#dfe7f1 100%);
   --panel:#f8fafd; --card:#ffffff; --card2:#eff4fb; --line:#c3cfdf;
   --txt:#1a2433; --dim:#566883; --faint:#8a9ab1;
@@ -272,10 +272,10 @@ body.hide-tv .tv{visibility:hidden}
       <div class="setrow"><span>Colour theme</span>
         <select id="themeSel">
           <optgroup label="Host nations">
-            <option value="usa">USA Blue</option>
-            <option value="canada">Canada Red</option>
-            <option value="mexico">Mexico Green</option>
-            <option value="all">All White</option>
+            <option value="usa">USA (Blue)</option>
+            <option value="canada">Canada (Red)</option>
+            <option value="mexico">Mexico (Green)</option>
+            <option value="all">WC2026 (White)</option>
           </optgroup>
           <optgroup label="Art styles">
             <option value="shonen">Sport Manga</option>
@@ -340,7 +340,9 @@ const FLAG_ISO={
 function flagImg(code,h){
  const iso=FLAG_ISO[code];
  if(!iso)return TEAMS[code]?TEAMS[code][1]:'';
- return`<img src="https://flagcdn.com/w40/${iso}.png" height="${h||16}" style="vertical-align:middle;display:inline-block;border-radius:1px" alt="${code}">`;
+ /* fixed 3:2 box + object-fit:cover so odd ratios (e.g. Qatar 11:28) don't widen the row */
+ const ht=h||16,wd=Math.round(ht*1.5);
+ return`<img src="https://flagcdn.com/w40/${iso}.png" width="${wd}" height="${ht}" style="width:${wd}px;height:${ht}px;object-fit:cover;vertical-align:middle;display:inline-block;border-radius:1px" alt="${code}">`;
 }
 
 const GACCENT={A:'#2dd673',B:'#ff5d5d',C:'#ffd02e',D:'#4aa8ff',E:'#ff9434',F:'#2fd6c3',
