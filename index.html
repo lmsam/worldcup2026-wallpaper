@@ -176,6 +176,11 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 .rrow .gd{color:var(--dim);text-align:right;font-size:14.5px;font-weight:600}
 .rrow.q{border-left-color:var(--accent)}
 .rrow.live .pts,.rrow.live .gd{color:var(--live)} /* provisional — includes a match in progress */
+.rrow .lk{margin-left:5px;vertical-align:middle;line-height:1}
+.rrow .lk.fin{color:#1ea84f;font-weight:900;font-size:13px}   /* exact final position secured */
+.rrow .lk.thru{color:#1ea84f;font-size:9px}                    /* through to R32, seeding open */
+.ghead .finb{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.6px;background:rgba(0,0,0,.32);color:#fff;padding:1px 6px;border-radius:4px}
+.bcard .team.qd .nm{font-weight:700}  /* clinched slot resolved into the bracket */
 .fixtures{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:3px 7px;min-height:0}
 .fx{display:grid;grid-template-columns:106px 1fr 36px;align-items:center;gap:4px;min-height:0}
 .fx .when{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden}
@@ -339,7 +344,8 @@ body[data-theme="comic"] .cday,body[data-theme="mario"] .cday{border-width:2px}
     <span class="legend"><span class="dot" style="background:#e2231a"></span>BBC</span>
     <span class="legend"><span class="dot" style="background:#0a6e4f"></span>ITV</span>
     <span class="legend"><span class="dot" style="background:var(--live)"></span>Live</span>
-    <span>Ranking: Pts → Goal difference → Goals scored (FIFA rules)</span>
+    <span class="legend"><span style="color:#1ea84f;font-size:9px">●</span> Through to R32 &nbsp; <span style="color:#1ea84f;font-weight:900">✓</span> Final position</span>
+    <span>Ranking: Pts → Head-to-head → Goal difference → Goals scored (FIFA 2026 rules)</span>
     <span>Auto-refresh: 60s during live matches, sleeps until next kickoff (ESPN)</span>
   </div>
 </div></div></div>
@@ -539,20 +545,111 @@ function updateTZLabels(){
 
 const pairKey=(a,b)=>[a,b].sort().join('-');
 let results={}, koEvents=[];
+/* resolved knockout slots: '1st Group A'/'2nd Group A' -> team code, filled once
+   a group's winner / runner-up is mathematically locked (see groupClinch) */
+let KOSLOT={};
 
 /* ================= RENDER ================= */
 function teamRow(code,score,extra){
   const t=TEAMS[code];
   return `<div class="team ${extra||''}"><span>${flagImg(code,18)}</span><span class="nm">${t[0]}</span><span class="sc">${score??''}</span></div>`;
 }
+/* FIFA 2026 group-stage tiebreakers, applied in order:
+   1) points  2) head-to-head points  3) head-to-head goal difference
+   4) head-to-head goals scored  5) overall goal difference  6) overall goals scored
+   7) fair-play conduct score  8) FIFA World Ranking
+   Head-to-head is computed only among the currently-tied teams and re-applied
+   iteratively if it separates a tie only partially (per FIFA's procedure).
+   Steps 7-8 need data we don't have (disciplinary points / world ranking), so
+   teams still level after step 6 keep a stable order. */
+function rankGroup(codes,st,gFix){
+  /* head-to-head mini-table among `subset` only (live matches count provisionally) */
+  function h2h(subset){
+    const m={};subset.forEach(c=>m[c]={p:0,gd:0,gf:0});
+    gFix.forEach(f=>{
+      if(subset.includes(f[1])&&subset.includes(f[2])){
+        const r=results[pairKey(f[1],f[2])];
+        if(r&&r.state!=='pre'){
+          const hs=r.hc===f[1]?r.hs:r.as, as=r.hc===f[1]?r.as:r.hs;
+          m[f[1]].gf+=hs;m[f[1]].gd+=hs-as;m[f[2]].gf+=as;m[f[2]].gd+=as-hs;
+          if(hs>as)m[f[1]].p+=3;else if(as>hs)m[f[2]].p+=3;else{m[f[1]].p++;m[f[2]].p++;}
+        }
+      }});
+    return m;
+  }
+  /* sort members descending by a tuple key, grouping equal tuples into clusters */
+  function clusters(members,keyFn){
+    const eq=(a,b)=>{const ka=keyFn(a),kb=keyFn(b);return ka.every((v,i)=>v===kb[i]);};
+    const arr=[...members].sort((x,y)=>{
+      const kx=keyFn(x),ky=keyFn(y);
+      for(let i=0;i<kx.length;i++){if(ky[i]!==kx[i])return ky[i]-kx[i];}
+      return 0;});
+    const out=[];arr.forEach(c=>{const last=out[out.length-1];if(last&&eq(last[0],c))last.push(c);else out.push([c]);});
+    return out;
+  }
+  /* resolve a set of teams tied on overall points */
+  function breakTie(tied){
+    const m=h2h(tied);
+    let res=[];
+    clusters(tied,c=>[m[c].p,m[c].gd,m[c].gf]).forEach(grp=>{
+      if(grp.length===1)res.push(grp[0]);
+      else if(grp.length<tied.length)res=res.concat(breakTie(grp)); /* partial split -> recompute h2h on smaller set */
+      else res=res.concat(clusters(grp,c=>[st[c].gd,st[c].gf]).flat()); /* no split -> overall GD, GF */
+    });
+    return res;
+  }
+  let order=[];
+  clusters(codes,c=>[st[c].p]).forEach(grp=>{
+    order=grp.length===1?order.concat(grp):order.concat(breakTie(grp));
+  });
+  return order;
+}
+/* Which final positions are mathematically locked for a group.
+   Enumerates every remaining-result combination (each unplayed/live match = win/draw/loss)
+   so dependencies like two rivals still meeting each other are handled exactly. A claim
+   only holds if it's true in EVERY combination; points ties (which would hinge on future
+   scorelines / head-to-head) are treated as unresolved, so we never over-claim.
+   `lock[code]` = guaranteed exact final rank (1-4); `thru[code]` = guaranteed top-2 (R32);
+   `allDone` = all six matches finished, so the table is final (order resolves any tie). */
+function groupClinch(teams,gFix,order){
+  const base={};teams.forEach(c=>base[c]=0);
+  const rem=[];                                          /* unplayed or in-progress matches */
+  gFix.forEach(f=>{
+    const r=results[pairKey(f[1],f[2])];
+    if(r&&r.state==='post'){
+      const hs=r.hc===f[1]?r.hs:r.as, as=r.hc===f[1]?r.as:r.hs;
+      if(hs>as)base[f[1]]+=3;else if(as>hs)base[f[2]]+=3;else{base[f[1]]++;base[f[2]]++;}
+    }else rem.push([f[1],f[2]]);
+  });
+  const allDone=rem.length===0, total=3**rem.length;
+  const thru={},exact={};teams.forEach(c=>{thru[c]=true;exact[c]=undefined;});
+  for(let m=0;m<total;m++){                              /* every win/draw/loss assignment */
+    const pts={};teams.forEach(c=>pts[c]=base[c]);
+    let x=m;
+    for(const[a,b]of rem){const o=x%3;x=(x-o)/3;
+      if(o===0)pts[a]+=3;else if(o===1)pts[b]+=3;else{pts[a]++;pts[b]++;}}
+    teams.forEach(c=>{
+      let strict=0,ge=0;                                 /* rivals strictly above / at-or-above */
+      teams.forEach(u=>{if(u!==c){if(pts[u]>pts[c])strict++;if(pts[u]>=pts[c])ge++;}});
+      if(ge>1)thru[c]=false;                             /* >1 rival could match/pass -> not safe */
+      const r=ge===strict?strict+1:NaN;                  /* unique rank only when no points tie */
+      exact[c]=exact[c]===undefined?r:(exact[c]===r?r:NaN);
+    });
+  }
+  const lock={};teams.forEach(c=>{if(Number.isInteger(exact[c]))lock[c]=exact[c];});
+  if(allDone)order.forEach((c,i)=>{lock[c]=i+1;thru[c]=i<2;}); /* group over: table final */
+  return {lock,thru,allDone};
+}
 function renderGroups(){
+  KOSLOT={};
   const sideL=$('#sideL'),sideR=$('#sideR');sideL.innerHTML='';sideR.innerHTML='';
   Object.entries(GROUPS).forEach(([g,teams],i)=>{
-    /* standings: Pts -> GD -> GF (FIFA tiebreak order)
+    /* standings per FIFA 2026 tiebreakers (see rankGroup);
        live matches count provisionally at the current score (0-0 = 1pt each) */
     const st={};teams.forEach(c=>st[c]={p:0,gd:0,gf:0});
     const liveTeams=new Set();
-    FIX.filter(f=>f[0]===g).forEach(f=>{
+    const gFix=FIX.filter(f=>f[0]===g);
+    gFix.forEach(f=>{
       const r=results[pairKey(f[1],f[2])];
       if(r&&r.state!=='pre'){
         const hs=r.hc===f[1]?r.hs:r.as, as=r.hc===f[1]?r.as:r.hs;
@@ -560,10 +657,17 @@ function renderGroups(){
         if(hs>as)st[f[1]].p+=3;else if(as>hs)st[f[2]].p+=3;else{st[f[1]].p++;st[f[2]].p++;}
         if(r.state==='in'){liveTeams.add(f[1]);liveTeams.add(f[2]);}
       }});
-    const order=[...teams].sort((a,b)=>st[b].p-st[a].p||st[b].gd-st[a].gd||st[b].gf-st[a].gf);
+    const order=rankGroup(teams,st,gFix);
+    const ci=groupClinch(teams,gFix,order);
+    order.forEach(c=>{                                  /* feed locked winners/runners-up to the bracket */
+      if(ci.lock[c]===1)KOSLOT['1st Group '+g]=c;
+      else if(ci.lock[c]===2)KOSLOT['2nd Group '+g]=c;
+    });
     const rows=order.map((c,ix)=>{
       const gd=st[c].gd,gds=gd>0?'+'+gd:gd;
-      return `<div class="rrow ${ix<2?'q':''} ${liveTeams.has(c)?'live':''}"><span class="pos">${ix+1}</span><span>${flagImg(c)} ${c}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
+      const mark=ci.lock[c]?'<span class="lk fin" title="Final position secured">✓</span>'
+                :ci.thru[c]?'<span class="lk thru" title="Through to the Round of 32 (seeding open)">●</span>':'';
+      return `<div class="rrow ${ix<2?'q':''} ${ci.lock[c]?'fin':''} ${liveTeams.has(c)?'live':''}"><span class="pos">${ix+1}</span><span>${flagImg(c)} ${c}${mark}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
     }).join('');
     const fxs=FIX.filter(f=>f[0]===g).map(f=>{
       const r=results[pairKey(f[1],f[2])];let mid,cls='',stat;
@@ -580,7 +684,7 @@ function renderGroups(){
         <span class="tv ${f[5]}">${f[5]}</span></div>`;
     }).join('');
     const box=`<div class="group">
-      <div class="ghead" style="background:${GACCENT[g]}">GROUP ${g}</div>
+      <div class="ghead" style="background:${GACCENT[g]}">GROUP ${g}${ci.allDone?'<span class="finb">FINAL</span>':''}</div>
       <div class="gbody">
         <div class="rank"><div class="rhead"><span></span><span></span><span style="text-align:right">PTS</span><span style="text-align:right">GD</span></div>${rows}</div>
         <div class="fixtures">${fxs}</div>
@@ -598,7 +702,12 @@ function koCardAt(slot,key,x,y,w,h,cls,label){
     if(ev.state==='in')cls+=' live';
     live=ev.state==='in'?` · <b style="color:var(--live)">${ev.detail||'LIVE'}</b>`:ev.state==='post'?' · FT':'';
   }else{
-    rows=`<div class="team tbd"><span class="nm">${p[0]}</span></div><div class="team tbd"><span class="nm">${p[1]}</span></div>`;
+    /* before the tie is played, show the clinched team if its group slot is locked,
+       otherwise the grey placeholder label ('1st Group A', '3rd A/B/…') */
+    const cell=t=>{const c=KOSLOT[t];
+      return c?`<div class="team qd"><span>${flagImg(c,18)}</span><span class="nm">${TEAMS[c][0]}</span></div>`
+              :`<div class="team tbd"><span class="nm">${t}</span></div>`;};
+    rows=cell(p[0])+cell(p[1]);
   }
   return `<div class="bcard ${cls}" data-k="${key}" style="left:${Math.round(x)}px;top:${Math.round(y-h/2)}px;width:${Math.round(w)}px;height:${Math.round(h)}px">
     <div class="meta"><span>${label?`<span class="rlab">${label}</span> · `:''}${fmtBST(slot.t)}${live}</span><span>${slot.v}</span></div>${rows}</div>`;
