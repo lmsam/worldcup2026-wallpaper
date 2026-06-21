@@ -95,12 +95,10 @@ body[data-theme="arcade"] #finhead h2{font-family:'Press Start 2P',monospace;fon
 body[data-theme="comic"] #texture{display:block;opacity:.5;background:radial-gradient(circle,rgba(21,23,28,.10) 2px,transparent 2.6px);background-size:15px 15px}
 body[data-theme="comic"] .title,body[data-theme="comic"] .ghead,body[data-theme="comic"] .roundtitle,body[data-theme="comic"] .year,body[data-theme="comic"] #finhead h2{font-family:'Bangers',cursive;letter-spacing:2px}
 body[data-theme="comic"] .group,body[data-theme="comic"] .bcard{border-width:3px;border-color:#15171c}
-body[data-theme="comic"] .rrow.q{border-left-color:#e63329}
 body[data-theme="mario"] #texture{display:block;opacity:.5;background:repeating-linear-gradient(0deg,rgba(0,0,0,.05) 0 1px,transparent 1px 16px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 16px)}
 body[data-theme="mario"] .title{font-family:'Press Start 2P',monospace;font-size:24px;letter-spacing:0}
 body[data-theme="mario"] #finhead h2{font-family:'Press Start 2P',monospace;font-size:19px;letter-spacing:1px}
 body[data-theme="mario"] .group,body[data-theme="mario"] .bcard{border-width:3px;border-color:#15183a}
-body[data-theme="mario"] .rrow.q{border-left-color:#e52521}
 /* ============ BASE ============ */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;overflow-x:hidden}
@@ -174,11 +172,11 @@ html,body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui
 .rrow .pos{color:var(--faint);font-size:13.5px;font-weight:600}
 .rrow .pts{color:var(--accent);text-align:right}
 .rrow .gd{color:var(--dim);text-align:right;font-size:14.5px;font-weight:600}
-.rrow.q{border-left-color:var(--accent)}
+.rrow{border-left-width:4px}
+.rrow.adv{border-left-color:#1faf53}    /* confirmed: through to the Round of 32 */
+.rrow.prov{border-left-color:#4aa8ff}   /* provisional: top-2 or best-third contender, not yet decided */
+.rrow.out{border-left-color:#e23b3b}    /* eliminated: cannot reach the Round of 32 */
 .rrow.live .pts,.rrow.live .gd{color:var(--live)} /* provisional — includes a match in progress */
-.rrow .lk{margin-left:5px;vertical-align:middle;line-height:1}
-.rrow .lk.fin{color:#1ea84f;font-weight:900;font-size:13px}   /* exact final position secured */
-.rrow .lk.thru{color:#1ea84f;font-size:9px}                    /* through to R32, seeding open */
 .ghead .finb{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.6px;background:rgba(0,0,0,.32);color:#fff;padding:1px 6px;border-radius:4px}
 .bcard .team.qd .nm{font-weight:700}  /* clinched slot resolved into the bracket */
 .fixtures{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:3px 7px;min-height:0}
@@ -344,7 +342,7 @@ body[data-theme="comic"] .cday,body[data-theme="mario"] .cday{border-width:2px}
     <span class="legend"><span class="dot" style="background:#e2231a"></span>BBC</span>
     <span class="legend"><span class="dot" style="background:#0a6e4f"></span>ITV</span>
     <span class="legend"><span class="dot" style="background:var(--live)"></span>Live</span>
-    <span class="legend"><span style="color:#1ea84f;font-size:9px">●</span> Through to R32 &nbsp; <span style="color:#1ea84f;font-weight:900">✓</span> Final position</span>
+    <span class="legend"><span class="dot" style="background:#1faf53"></span>Through to R32 <span class="dot" style="background:#4aa8ff;margin-left:6px"></span>In contention <span class="dot" style="background:#e23b3b;margin-left:6px"></span>Eliminated</span>
     <span>Ranking: Pts → Head-to-head → Goal difference → Goals scored (FIFA 2026 rules)</span>
     <span>Auto-refresh: 60s during live matches, sleeps until next kickoff (ESPN)</span>
   </div>
@@ -640,15 +638,141 @@ function groupClinch(teams,gFix,order){
   if(allDone)order.forEach((c,i)=>{lock[c]=i+1;thru[c]=i<2;}); /* group over: table final */
   return {lock,thru,allDone};
 }
+const THIRD_MAP={
+ ABCDEFGH:"HGBCAFDE",ABCDEFGI:"CGBDAFEI",ABCDEFGJ:"CGBDAFEJ",ABCDEFGK:"CGBDAFEK",ABCDEFGL:"CGBDAFLE",
+ ABCDEFHI:"HEBCAFDI",ABCDEFHJ:"HJBCAFDE",ABCDEFHK:"HEBCAFDK",ABCDEFHL:"HFBCADLE",ABCDEFIJ:"CJBDAFEI",
+ ABCDEFIK:"CEBDAFIK",ABCDEFIL:"CEBDAFLI",ABCDEFJK:"CJBDAFEK",ABCDEFJL:"CJBDAFLE",ABCDEFKL:"CEBDAFLK",
+ ABCDEGHI:"HGBCADEI",ABCDEGHJ:"HGBCADEJ",ABCDEGHK:"HGBCADEK",ABCDEGHL:"HGBCADLE",ABCDEGIJ:"EGBCADIJ",
+ ABCDEGIK:"EGBCADIK",ABCDEGIL:"EGBCADLI",ABCDEGJK:"EGBCADJK",ABCDEGJL:"EGBCADLJ",ABCDEGKL:"EGBCADLK",
+ ABCDEHIJ:"HJBCADEI",ABCDEHIK:"HEBCADIK",ABCDEHIL:"HEBCADLI",ABCDEHJK:"HJBCADEK",ABCDEHJL:"HJBCADLE",
+ ABCDEHKL:"HEBCADLK",ABCDEIJK:"EJBCADIK",ABCDEIJL:"EJBCADLI",ABCDEIKL:"EIBCADLK",ABCDEJKL:"EJBCADLK",
+ ABCDFGHI:"HGBCAFDI",ABCDFGHJ:"HGBCAFDJ",ABCDFGHK:"HGBCAFDK",ABCDFGHL:"CGBDAFLH",ABCDFGIJ:"CGBDAFIJ",
+ ABCDFGIK:"CGBDAFIK",ABCDFGIL:"CGBDAFLI",ABCDFGJK:"CGBDAFJK",ABCDFGJL:"CGBDAFLJ",ABCDFGKL:"CGBDAFLK",
+ ABCDFHIJ:"HJBCAFDI",ABCDFHIK:"HFBCADIK",ABCDFHIL:"HFBCADLI",ABCDFHJK:"HJBCAFDK",ABCDFHJL:"CJBDAFLH",
+ ABCDFHKL:"HFBCADLK",ABCDFIJK:"CJBDAFIK",ABCDFIJL:"CJBDAFLI",ABCDFIKL:"CIBDAFLK",ABCDFJKL:"CJBDAFLK",
+ ABCDGHIJ:"HGBCADIJ",ABCDGHIK:"HGBCADIK",ABCDGHIL:"HGBCADLI",ABCDGHJK:"HGBCADJK",ABCDGHJL:"HGBCADLJ",
+ ABCDGHKL:"HGBCADLK",ABCDGIJK:"CJBDAGIK",ABCDGIJL:"CJBDAGLI",ABCDGIKL:"IGBCADLK",ABCDGJKL:"CJBDAGLK",
+ ABCDHIJK:"HJBCADIK",ABCDHIJL:"HJBCADLI",ABCDHIKL:"HIBCADLK",ABCDHJKL:"HJBCADLK",ABCDIJKL:"IJBCADLK",
+ ABCEFGHI:"HGBCAFEI",ABCEFGHJ:"HGBCAFEJ",ABCEFGHK:"HGBCAFEK",ABCEFGHL:"HGBCAFLE",ABCEFGIJ:"EGBCAFIJ",
+ ABCEFGIK:"EGBCAFIK",ABCEFGIL:"EGBCAFLI",ABCEFGJK:"EGBCAFJK",ABCEFGJL:"EGBCAFLJ",ABCEFGKL:"EGBCAFLK",
+ ABCEFHIJ:"HJBCAFEI",ABCEFHIK:"HEBCAFIK",ABCEFHIL:"HEBCAFLI",ABCEFHJK:"HJBCAFEK",ABCEFHJL:"HJBCAFLE",
+ ABCEFHKL:"HEBCAFLK",ABCEFIJK:"EJBCAFIK",ABCEFIJL:"EJBCAFLI",ABCEFIKL:"EIBCAFLK",ABCEFJKL:"EJBCAFLK",
+ ABCEGHIJ:"HJBCAGEI",ABCEGHIK:"EGBCAHIK",ABCEGHIL:"EGBCAHLI",ABCEGHJK:"HJBCAGEK",ABCEGHJL:"HJBCAGLE",
+ ABCEGHKL:"EGBCAHLK",ABCEGIJK:"EJBCAGIK",ABCEGIJL:"EJBCAGLI",ABCEGIKL:"EGBAICLK",ABCEGJKL:"EJBCAGLK",
+ ABCEHIJK:"EJBCAHIK",ABCEHIJL:"EJBCAHLI",ABCEHIKL:"EIBCAHLK",ABCEHJKL:"EJBCAHLK",ABCEIJKL:"EJBAICLK",
+ ABCFGHIJ:"HGBCAFIJ",ABCFGHIK:"HGBCAFIK",ABCFGHIL:"HGBCAFLI",ABCFGHJK:"HGBCAFJK",ABCFGHJL:"HGBCAFLJ",
+ ABCFGHKL:"HGBCAFLK",ABCFGIJK:"CJBFAGIK",ABCFGIJL:"CJBFAGLI",ABCFGIKL:"IGBCAFLK",ABCFGJKL:"CJBFAGLK",
+ ABCFHIJK:"HJBCAFIK",ABCFHIJL:"HJBCAFLI",ABCFHIKL:"HIBCAFLK",ABCFHJKL:"HJBCAFLK",ABCFIJKL:"IJBCAFLK",
+ ABCGHIJK:"HJBCAGIK",ABCGHIJL:"HJBCAGLI",ABCGHIKL:"IGBCAHLK",ABCGHJKL:"HJBCAGLK",ABCGIJKL:"IJBCAGLK",
+ ABCHIJKL:"IJBCAHLK",ABDEFGHI:"HGBDAFEI",ABDEFGHJ:"HGBDAFEJ",ABDEFGHK:"HGBDAFEK",ABDEFGHL:"HGBDAFLE",
+ ABDEFGIJ:"EGBDAFIJ",ABDEFGIK:"EGBDAFIK",ABDEFGIL:"EGBDAFLI",ABDEFGJK:"EGBDAFJK",ABDEFGJL:"EGBDAFLJ",
+ ABDEFGKL:"EGBDAFLK",ABDEFHIJ:"HJBDAFEI",ABDEFHIK:"HEBDAFIK",ABDEFHIL:"HEBDAFLI",ABDEFHJK:"HJBDAFEK",
+ ABDEFHJL:"HJBDAFLE",ABDEFHKL:"HEBDAFLK",ABDEFIJK:"EJBDAFIK",ABDEFIJL:"EJBDAFLI",ABDEFIKL:"EIBDAFLK",
+ ABDEFJKL:"EJBDAFLK",ABDEGHIJ:"HJBDAGEI",ABDEGHIK:"EGBDAHIK",ABDEGHIL:"EGBDAHLI",ABDEGHJK:"HJBDAGEK",
+ ABDEGHJL:"HJBDAGLE",ABDEGHKL:"EGBDAHLK",ABDEGIJK:"EJBDAGIK",ABDEGIJL:"EJBDAGLI",ABDEGIKL:"EGBAIDLK",
+ ABDEGJKL:"EJBDAGLK",ABDEHIJK:"EJBDAHIK",ABDEHIJL:"EJBDAHLI",ABDEHIKL:"EIBDAHLK",ABDEHJKL:"EJBDAHLK",
+ ABDEIJKL:"EJBAIDLK",ABDFGHIJ:"HGBDAFIJ",ABDFGHIK:"HGBDAFIK",ABDFGHIL:"HGBDAFLI",ABDFGHJK:"HGBDAFJK",
+ ABDFGHJL:"HGBDAFLJ",ABDFGHKL:"HGBDAFLK",ABDFGIJK:"FJBDAGIK",ABDFGIJL:"FJBDAGLI",ABDFGIKL:"IGBDAFLK",
+ ABDFGJKL:"FJBDAGLK",ABDFHIJK:"HJBDAFIK",ABDFHIJL:"HJBDAFLI",ABDFHIKL:"HIBDAFLK",ABDFHJKL:"HJBDAFLK",
+ ABDFIJKL:"IJBDAFLK",ABDGHIJK:"HJBDAGIK",ABDGHIJL:"HJBDAGLI",ABDGHIKL:"IGBDAHLK",ABDGHJKL:"HJBDAGLK",
+ ABDGIJKL:"IJBDAGLK",ABDHIJKL:"IJBDAHLK",ABEFGHIJ:"HJBFAGEI",ABEFGHIK:"EGBFAHIK",ABEFGHIL:"EGBFAHLI",
+ ABEFGHJK:"HJBFAGEK",ABEFGHJL:"HJBFAGLE",ABEFGHKL:"EGBFAHLK",ABEFGIJK:"EJBFAGIK",ABEFGIJL:"EJBFAGLI",
+ ABEFGIKL:"EGBAIFLK",ABEFGJKL:"EJBFAGLK",ABEFHIJK:"EJBFAHIK",ABEFHIJL:"EJBFAHLI",ABEFHIKL:"EIBFAHLK",
+ ABEFHJKL:"EJBFAHLK",ABEFIJKL:"EJBAIFLK",ABEGHIJK:"EJBAHGIK",ABEGHIJL:"EJBAHGLI",ABEGHIKL:"EGBAIHLK",
+ ABEGHJKL:"EJBAHGLK",ABEGIJKL:"EJBAIGLK",ABEHIJKL:"EJBAIHLK",ABFGHIJK:"HJBFAGIK",ABFGHIJL:"HJBFAGLI",
+ ABFGHIKL:"HGBAIFLK",ABFGHJKL:"HJBFAGLK",ABFGIJKL:"IJBFAGLK",ABFHIJKL:"HJBAIFLK",ABGHIJKL:"HJBAIGLK",
+ ACDEFGHI:"HGECAFDI",ACDEFGHJ:"HGJCAFDE",ACDEFGHK:"HGECAFDK",ACDEFGHL:"HGFCADLE",ACDEFGIJ:"CGJDAFEI",
+ ACDEFGIK:"CGEDAFIK",ACDEFGIL:"CGEDAFLI",ACDEFGJK:"CGJDAFEK",ACDEFGJL:"CGJDAFLE",ACDEFGKL:"CGEDAFLK",
+ ACDEFHIJ:"HJECAFDI",ACDEFHIK:"HEFCADIK",ACDEFHIL:"HEFCADLI",ACDEFHJK:"HJECAFDK",ACDEFHJL:"HJFCADLE",
+ ACDEFHKL:"HEFCADLK",ACDEFIJK:"CJEDAFIK",ACDEFIJL:"CJEDAFLI",ACDEFIKL:"CEIDAFLK",ACDEFJKL:"CJEDAFLK",
+ ACDEGHIJ:"HGJCADEI",ACDEGHIK:"HGECADIK",ACDEGHIL:"HGECADLI",ACDEGHJK:"HGJCADEK",ACDEGHJL:"HGJCADLE",
+ ACDEGHKL:"HGECADLK",ACDEGIJK:"EGJCADIK",ACDEGIJL:"EGJCADLI",ACDEGIKL:"EGICADLK",ACDEGJKL:"EGJCADLK",
+ ACDEHIJK:"HJECADIK",ACDEHIJL:"HJECADLI",ACDEHIKL:"HEICADLK",ACDEHJKL:"HJECADLK",ACDEIJKL:"EJICADLK",
+ ACDFGHIJ:"HGJCAFDI",ACDFGHIK:"HGFCADIK",ACDFGHIL:"HGFCADLI",ACDFGHJK:"HGJCAFDK",ACDFGHJL:"CGJDAFLH",
+ ACDFGHKL:"HGFCADLK",ACDFGIJK:"CGJDAFIK",ACDFGIJL:"CGJDAFLI",ACDFGIKL:"CGIDAFLK",ACDFGJKL:"CGJDAFLK",
+ ACDFHIJK:"HJFCADIK",ACDFHIJL:"HJFCADLI",ACDFHIKL:"HFICADLK",ACDFHJKL:"HJFCADLK",ACDFIJKL:"CJIDAFLK",
+ ACDGHIJK:"HGJCADIK",ACDGHIJL:"HGJCADLI",ACDGHIKL:"HGICADLK",ACDGHJKL:"HGJCADLK",ACDGIJKL:"IGJCADLK",
+ ACDHIJKL:"HJICADLK",ACEFGHIJ:"HGJCAFEI",ACEFGHIK:"HGECAFIK",ACEFGHIL:"HGECAFLI",ACEFGHJK:"HGJCAFEK",
+ ACEFGHJL:"HGJCAFLE",ACEFGHKL:"HGECAFLK",ACEFGIJK:"EGJCAFIK",ACEFGIJL:"EGJCAFLI",ACEFGIKL:"EGICAFLK",
+ ACEFGJKL:"EGJCAFLK",ACEFHIJK:"HJECAFIK",ACEFHIJL:"HJECAFLI",ACEFHIKL:"HEICAFLK",ACEFHJKL:"HJECAFLK",
+ ACEFIJKL:"EJICAFLK",ACEGHIJK:"EGJCAHIK",ACEGHIJL:"EGJCAHLI",ACEGHIKL:"EGICAHLK",ACEGHJKL:"EGJCAHLK",
+ ACEGIJKL:"EJICAGLK",ACEHIJKL:"EJICAHLK",ACFGHIJK:"HGJCAFIK",ACFGHIJL:"HGJCAFLI",ACFGHIKL:"HGICAFLK",
+ ACFGHJKL:"HGJCAFLK",ACFGIJKL:"IGJCAFLK",ACFHIJKL:"HJICAFLK",ACGHIJKL:"HJICAGLK",ADEFGHIJ:"HGJDAFEI",
+ ADEFGHIK:"HGEDAFIK",ADEFGHIL:"HGEDAFLI",ADEFGHJK:"HGJDAFEK",ADEFGHJL:"HGJDAFLE",ADEFGHKL:"HGEDAFLK",
+ ADEFGIJK:"EGJDAFIK",ADEFGIJL:"EGJDAFLI",ADEFGIKL:"EGIDAFLK",ADEFGJKL:"EGJDAFLK",ADEFHIJK:"HJEDAFIK",
+ ADEFHIJL:"HJEDAFLI",ADEFHIKL:"HEIDAFLK",ADEFHJKL:"HJEDAFLK",ADEFIJKL:"EJIDAFLK",ADEGHIJK:"EGJDAHIK",
+ ADEGHIJL:"EGJDAHLI",ADEGHIKL:"EGIDAHLK",ADEGHJKL:"EGJDAHLK",ADEGIJKL:"EJIDAGLK",ADEHIJKL:"EJIDAHLK",
+ ADFGHIJK:"HGJDAFIK",ADFGHIJL:"HGJDAFLI",ADFGHIKL:"HGIDAFLK",ADFGHJKL:"HGJDAFLK",ADFGIJKL:"IGJDAFLK",
+ ADFHIJKL:"HJIDAFLK",ADGHIJKL:"HJIDAGLK",AEFGHIJK:"EGJFAHIK",AEFGHIJL:"EGJFAHLI",AEFGHIKL:"EGIFAHLK",
+ AEFGHJKL:"EGJFAHLK",AEFGIJKL:"EJIFAGLK",AEFHIJKL:"EJIFAHLK",AEGHIJKL:"EJIAHGLK",AFGHIJKL:"HJIFAGLK",
+ BCDEFGHI:"CGBDHFEI",BCDEFGHJ:"HGBCJFDE",BCDEFGHK:"CGBDHFEK",BCDEFGHL:"CGBDHFLE",BCDEFGIJ:"CGBDJFEI",
+ BCDEFGIK:"CGBDEFIK",BCDEFGIL:"CGBDEFLI",BCDEFGJK:"CGBDJFEK",BCDEFGJL:"CGBDJFLE",BCDEFGKL:"CGBDEFLK",
+ BCDEFHIJ:"CJBDHFEI",BCDEFHIK:"CEBDHFIK",BCDEFHIL:"CEBDHFLI",BCDEFHJK:"CJBDHFEK",BCDEFHJL:"CJBDHFLE",
+ BCDEFHKL:"CEBDHFLK",BCDEFIJK:"CJBDEFIK",BCDEFIJL:"CJBDEFLI",BCDEFIKL:"CEBDIFLK",BCDEFJKL:"CJBDEFLK",
+ BCDEGHIJ:"HGBCJDEI",BCDEGHIK:"EGBCHDIK",BCDEGHIL:"EGBCHDLI",BCDEGHJK:"HGBCJDEK",BCDEGHJL:"HGBCJDLE",
+ BCDEGHKL:"EGBCHDLK",BCDEGIJK:"EGBCJDIK",BCDEGIJL:"EGBCJDLI",BCDEGIKL:"EGBCIDLK",BCDEGJKL:"EGBCJDLK",
+ BCDEHIJK:"EJBCHDIK",BCDEHIJL:"EJBCHDLI",BCDEHIKL:"EIBCHDLK",BCDEHJKL:"EJBCHDLK",BCDEIJKL:"EJBCIDLK",
+ BCDFGHIJ:"HGBCJFDI",BCDFGHIK:"CGBDHFIK",BCDFGHIL:"CGBDHFLI",BCDFGHJK:"HGBCJFDK",BCDFGHJL:"CGBDHFLJ",
+ BCDFGHKL:"CGBDHFLK",BCDFGIJK:"CGBDJFIK",BCDFGIJL:"CGBDJFLI",BCDFGIKL:"CGBDIFLK",BCDFGJKL:"CGBDJFLK",
+ BCDFHIJK:"CJBDHFIK",BCDFHIJL:"CJBDHFLI",BCDFHIKL:"CIBDHFLK",BCDFHJKL:"CJBDHFLK",BCDFIJKL:"CJBDIFLK",
+ BCDGHIJK:"HGBCJDIK",BCDGHIJL:"HGBCJDLI",BCDGHIKL:"HGBCIDLK",BCDGHJKL:"HGBCJDLK",BCDGIJKL:"IGBCJDLK",
+ BCDHIJKL:"HJBCIDLK",BCEFGHIJ:"HGBCJFEI",BCEFGHIK:"EGBCHFIK",BCEFGHIL:"EGBCHFLI",BCEFGHJK:"HGBCJFEK",
+ BCEFGHJL:"HGBCJFLE",BCEFGHKL:"EGBCHFLK",BCEFGIJK:"EGBCJFIK",BCEFGIJL:"EGBCJFLI",BCEFGIKL:"EGBCIFLK",
+ BCEFGJKL:"EGBCJFLK",BCEFHIJK:"EJBCHFIK",BCEFHIJL:"EJBCHFLI",BCEFHIKL:"EIBCHFLK",BCEFHJKL:"EJBCHFLK",
+ BCEFIJKL:"EJBCIFLK",BCEGHIJK:"EJBCHGIK",BCEGHIJL:"EJBCHGLI",BCEGHIKL:"EGBCIHLK",BCEGHJKL:"EJBCHGLK",
+ BCEGIJKL:"EJBCIGLK",BCEHIJKL:"EJBCIHLK",BCFGHIJK:"HGBCJFIK",BCFGHIJL:"HGBCJFLI",BCFGHIKL:"HGBCIFLK",
+ BCFGHJKL:"HGBCJFLK",BCFGIJKL:"IGBCJFLK",BCFHIJKL:"HJBCIFLK",BCGHIJKL:"HJBCIGLK",BDEFGHIJ:"HGBDJFEI",
+ BDEFGHIK:"EGBDHFIK",BDEFGHIL:"EGBDHFLI",BDEFGHJK:"HGBDJFEK",BDEFGHJL:"HGBDJFLE",BDEFGHKL:"EGBDHFLK",
+ BDEFGIJK:"EGBDJFIK",BDEFGIJL:"EGBDJFLI",BDEFGIKL:"EGBDIFLK",BDEFGJKL:"EGBDJFLK",BDEFHIJK:"EJBDHFIK",
+ BDEFHIJL:"EJBDHFLI",BDEFHIKL:"EIBDHFLK",BDEFHJKL:"EJBDHFLK",BDEFIJKL:"EJBDIFLK",BDEGHIJK:"EJBDHGIK",
+ BDEGHIJL:"EJBDHGLI",BDEGHIKL:"EGBDIHLK",BDEGHJKL:"EJBDHGLK",BDEGIJKL:"EJBDIGLK",BDEHIJKL:"EJBDIHLK",
+ BDFGHIJK:"HGBDJFIK",BDFGHIJL:"HGBDJFLI",BDFGHIKL:"HGBDIFLK",BDFGHJKL:"HGBDJFLK",BDFGIJKL:"IGBDJFLK",
+ BDFHIJKL:"HJBDIFLK",BDGHIJKL:"HJBDIGLK",BEFGHIJK:"EJBFHGIK",BEFGHIJL:"EJBFHGLI",BEFGHIKL:"EGBFIHLK",
+ BEFGHJKL:"EJBFHGLK",BEFGIJKL:"EJBFIGLK",BEFHIJKL:"EJBFIHLK",BEGHIJKL:"EJIBHGLK",BFGHIJKL:"HJBFIGLK",
+ CDEFGHIJ:"CGJDHFEI",CDEFGHIK:"CGEDHFIK",CDEFGHIL:"CGEDHFLI",CDEFGHJK:"CGJDHFEK",CDEFGHJL:"CGJDHFLE",
+ CDEFGHKL:"CGEDHFLK",CDEFGIJK:"CGEDJFIK",CDEFGIJL:"CGEDJFLI",CDEFGIKL:"CGEDIFLK",CDEFGJKL:"CGEDJFLK",
+ CDEFHIJK:"CJEDHFIK",CDEFHIJL:"CJEDHFLI",CDEFHIKL:"CEIDHFLK",CDEFHJKL:"CJEDHFLK",CDEFIJKL:"CJEDIFLK",
+ CDEGHIJK:"EGJCHDIK",CDEGHIJL:"EGJCHDLI",CDEGHIKL:"EGICHDLK",CDEGHJKL:"EGJCHDLK",CDEGIJKL:"EGICJDLK",
+ CDEHIJKL:"EJICHDLK",CDFGHIJK:"CGJDHFIK",CDFGHIJL:"CGJDHFLI",CDFGHIKL:"CGIDHFLK",CDFGHJKL:"CGJDHFLK",
+ CDFGIJKL:"CGIDJFLK",CDFHIJKL:"CJIDHFLK",CDGHIJKL:"HGICJDLK",CEFGHIJK:"EGJCHFIK",CEFGHIJL:"EGJCHFLI",
+ CEFGHIKL:"EGICHFLK",CEFGHJKL:"EGJCHFLK",CEFGIJKL:"EGICJFLK",CEFHIJKL:"EJICHFLK",CEGHIJKL:"EJICHGLK",
+ CFGHIJKL:"HGICJFLK",DEFGHIJK:"EGJDHFIK",DEFGHIJL:"EGJDHFLI",DEFGHIKL:"EGIDHFLK",DEFGHJKL:"EGJDHFLK",
+ DEFGIJKL:"EGIDJFLK",DEFHIJKL:"EJIDHFLK",DEGHIJKL:"EJIDHGLK",DFGHIJKL:"HGIDJFLK",EFGHIJKL:"EJIFHGLK"};
+/* Best third-placed teams -> Round of 32, using FIFA's published 495-combination table
+   (THIRD_MAP, Annex C of the regulations). Only resolvable once all twelve groups are
+   final: both the qualifying set of eight 3rd-placed groups and each group's 3rd team
+   must be settled. The twelve thirds are ranked by points -> goal difference -> goals
+   scored (the data we hold; the disciplinary / world-ranking fallbacks are omitted), the
+   top eight qualify, and THIRD_MAP says which group winner each of them faces.
+   Returns the set of qualifying 3rd-place team codes (used for the group-table marker). */
+const THIRD_WIN=['A','B','D','E','G','I','K','L'];   /* winners that face a 3rd, in table-column order */
+function resolveThirds(G){
+  const qual=new Set(), gs=Object.keys(G);
+  if(!gs.every(g=>G[g].ci.allDone))return qual;      /* hold until the group stage is complete */
+  const thirds=gs.map(g=>{const c=G[g].order[2],s=G[g].st[c];return{g,c,p:s.p,gd:s.gd,gf:s.gf};})
+    .sort((a,b)=>b.p-a.p||b.gd-a.gd||b.gf-a.gf);
+  const top8=thirds.slice(0,8);
+  top8.forEach(t=>qual.add(t.c));
+  const asg=THIRD_MAP[top8.map(t=>t.g).sort().join('')];
+  if(!asg)return qual;
+  const winThird={};THIRD_WIN.forEach((w,k)=>winThird[w]=asg[k]); /* 1st of group w plays 3rd of winThird[w] */
+  [...R32L,...R32R].forEach(slot=>{
+    if(!slot.p)return;
+    const ti=slot.p.findIndex(x=>/^3rd/.test(x));if(ti<0)return;
+    const wm=/1st Group ([A-L])/.exec(slot.p[ti?0:1]);if(!wm)return;
+    const tg=winThird[wm[1]];if(tg)KOSLOT[slot.p[ti]]=G[tg].order[2];
+  });
+  return qual;
+}
 function renderGroups(){
   KOSLOT={};
   const sideL=$('#sideL'),sideR=$('#sideR');sideL.innerHTML='';sideR.innerHTML='';
-  Object.entries(GROUPS).forEach(([g,teams],i)=>{
-    /* standings per FIFA 2026 tiebreakers (see rankGroup);
-       live matches count provisionally at the current score (0-0 = 1pt each) */
+  /* pass 1: standings + clinch for every group; feed locked 1st/2nd into the bracket */
+  const G={};
+  Object.keys(GROUPS).forEach(g=>{
+    const teams=GROUPS[g], gFix=FIX.filter(f=>f[0]===g);
     const st={};teams.forEach(c=>st[c]={p:0,gd:0,gf:0});
     const liveTeams=new Set();
-    const gFix=FIX.filter(f=>f[0]===g);
     gFix.forEach(f=>{
       const r=results[pairKey(f[1],f[2])];
       if(r&&r.state!=='pre'){
@@ -657,17 +781,23 @@ function renderGroups(){
         if(hs>as)st[f[1]].p+=3;else if(as>hs)st[f[2]].p+=3;else{st[f[1]].p++;st[f[2]].p++;}
         if(r.state==='in'){liveTeams.add(f[1]);liveTeams.add(f[2]);}
       }});
-    const order=rankGroup(teams,st,gFix);
-    const ci=groupClinch(teams,gFix,order);
-    order.forEach(c=>{                                  /* feed locked winners/runners-up to the bracket */
-      if(ci.lock[c]===1)KOSLOT['1st Group '+g]=c;
-      else if(ci.lock[c]===2)KOSLOT['2nd Group '+g]=c;
-    });
+    const order=rankGroup(teams,st,gFix), ci=groupClinch(teams,gFix,order);
+    order.forEach(c=>{if(ci.lock[c]===1)KOSLOT['1st Group '+g]=c;else if(ci.lock[c]===2)KOSLOT['2nd Group '+g]=c;});
+    G[g]={teams,gFix,st,order,ci,liveTeams};
+  });
+  /* pass 1.5: best thirds -> bracket once every group is final */
+  const qThird=resolveThirds(G);
+  /* pass 2: render each group box */
+  Object.entries(GROUPS).forEach(([g,teams],i)=>{
+    const {st,order,ci,liveTeams}=G[g];
     const rows=order.map((c,ix)=>{
       const gd=st[c].gd,gds=gd>0?'+'+gd:gd;
-      const mark=ci.lock[c]?'<span class="lk fin" title="Final position secured">✓</span>'
-                :ci.thru[c]?'<span class="lk thru" title="Through to the Round of 32 (seeding open)">●</span>':'';
-      return `<div class="rrow ${ix<2?'q':''} ${ci.lock[c]?'fin':''} ${liveTeams.has(c)?'live':''}"><span class="pos">${ix+1}</span><span>${flagImg(c)} ${c}${mark}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
+      /* left-border status: green=confirmed into R32, red=confirmed out, blue=provisional */
+      const through=ci.thru[c]||qThird.has(c);
+      const out=ci.lock[c]===4||(ci.allDone&&ix===2&&!qThird.has(c));
+      const stat=through?'adv':out?'out':ix<3?'prov':'';
+      const title=through?'Through to the Round of 32':out?'Eliminated':ix<3?'Provisional qualifying place':'';
+      return `<div class="rrow ${stat} ${liveTeams.has(c)?'live':''}" title="${title}"><span class="pos">${ix+1}</span><span>${flagImg(c)} ${c}</span><span class="pts">${st[c].p}</span><span class="gd">${gds}</span></div>`;
     }).join('');
     const fxs=FIX.filter(f=>f[0]===g).map(f=>{
       const r=results[pairKey(f[1],f[2])];let mid,cls='',stat;
