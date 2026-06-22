@@ -902,8 +902,8 @@ function renderBracket(){
   R16R.forEach((s,i)=>html+=koCardAt(s,'r16r-'+i,mir(x16),y16(i),bw,ch,'r16','R16'));
   QFL.forEach((s,i)=>html+=koCardAt(s,'qfl-'+i,xqf,yqf(i),bw,ch,'qf','QF'));
   QFR.forEach((s,i)=>html+=koCardAt(s,'qfr-'+i,mir(xqf),yqf(i),bw,ch,'qf','QF'));
-  html+=koCardAt(SF1,'sf1',xc,sf1Y,cw,ch,'sf bigcard','SEMI-FINAL 1');
-  html+=koCardAt(SF2,'sf2',xc,sf2Y,cw,ch,'sf bigcard','SEMI-FINAL 2');
+  html+=koCardAt(SF1,'sf1',xc,sf1Y,cw,ch,'sf bigcard','SEMI-FINAL L');
+  html+=koCardAt(SF2,'sf2',xc,sf2Y,cw,ch,'sf bigcard','SEMI-FINAL R');
   html+=koCardAt(FIN,'fin',xc,finY,cw,finH,'bigcard fincard','FINAL');
   html+=koCardAt(TP,'tp',xc,tpY,cw,ch,'tp','3RD PLACE');
   html+=`<div class="roundtitle" style="left:0;top:2px;width:${bw}px">ROUND OF 32</div>`;
