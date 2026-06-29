@@ -488,15 +488,25 @@ const R32R=[
  {t:'2026-07-03T04:00',v:'Vancouver',p:['1st Group B','3rd E/F/G/I/J']},
  {t:'2026-07-04T02:30',v:'Kansas City',p:['1st Group K','3rd D/E/I/J/L']}];
 const R16L=[
- {t:'2026-07-04T22:00',v:'Philadelphia'},{t:'2026-07-04T18:00',v:'Houston'},
- {t:'2026-07-06T20:00',v:'Dallas'},{t:'2026-07-07T01:00',v:'Seattle'}];
+ {t:'2026-07-04T22:00',v:'Philadelphia',p:['W:r32l-0','W:r32l-1']},
+ {t:'2026-07-04T18:00',v:'Houston',p:['W:r32l-2','W:r32l-3']},
+ {t:'2026-07-06T20:00',v:'Dallas',p:['W:r32l-4','W:r32l-5']},
+ {t:'2026-07-07T01:00',v:'Seattle',p:['W:r32l-6','W:r32l-7']}];
 const R16R=[
- {t:'2026-07-05T21:00',v:'New Jersey'},{t:'2026-07-06T01:00',v:'Mexico City'},
- {t:'2026-07-07T17:00',v:'Atlanta'},{t:'2026-07-07T21:00',v:'Vancouver'}];
-const QFL=[{t:'2026-07-09T21:00',v:'Boston'},{t:'2026-07-10T20:00',v:'Los Angeles'}];
-const QFR=[{t:'2026-07-11T22:00',v:'Miami'},{t:'2026-07-12T02:00',v:'Kansas City'}];
-const SF1={t:'2026-07-14T20:00',v:'Dallas'},SF2={t:'2026-07-15T20:00',v:'Atlanta'};
-const TP={t:'2026-07-18T22:00',v:'Miami'},FIN={t:'2026-07-19T20:00',v:'New Jersey'};
+ {t:'2026-07-05T21:00',v:'New Jersey',p:['W:r32r-0','W:r32r-1']},
+ {t:'2026-07-06T01:00',v:'Mexico City',p:['W:r32r-2','W:r32r-3']},
+ {t:'2026-07-07T17:00',v:'Atlanta',p:['W:r32r-4','W:r32r-5']},
+ {t:'2026-07-07T21:00',v:'Vancouver',p:['W:r32r-6','W:r32r-7']}];
+const QFL=[
+ {t:'2026-07-09T21:00',v:'Boston',p:['W:r16l-0','W:r16l-1']},
+ {t:'2026-07-10T20:00',v:'Los Angeles',p:['W:r16l-2','W:r16l-3']}];
+const QFR=[
+ {t:'2026-07-11T22:00',v:'Miami',p:['W:r16r-0','W:r16r-1']},
+ {t:'2026-07-12T02:00',v:'Kansas City',p:['W:r16r-2','W:r16r-3']}];
+const SF1={t:'2026-07-14T20:00',v:'Dallas',p:['W:qfl-0','W:qfr-0']};
+const SF2={t:'2026-07-15T20:00',v:'Atlanta',p:['W:qfl-1','W:qfr-1']};
+const TP={t:'2026-07-18T22:00',v:'Miami',p:['L:sf1','L:sf2']};
+const FIN={t:'2026-07-19T20:00',v:'New Jersey',p:['W:sf1','W:sf2']};
 
 /* ESPN name/abbr -> our code */
 const ALIAS={'mexico':'MEX','south africa':'RSA','south korea':'KOR','korea republic':'KOR',
@@ -792,6 +802,23 @@ function resolveBracket(G){
   }
   return {provThird,allFinal};
 }
+function resolveKOWinners(){
+  const slots={};
+  R32L.forEach((s,i)=>slots['r32l-'+i]=s);
+  R32R.forEach((s,i)=>slots['r32r-'+i]=s);
+  R16L.forEach((s,i)=>slots['r16l-'+i]=s);
+  R16R.forEach((s,i)=>slots['r16r-'+i]=s);
+  QFL.forEach((s,i)=>slots['qfl-'+i]=s);
+  QFR.forEach((s,i)=>slots['qfr-'+i]=s);
+  slots['sf1']=SF1;slots['sf2']=SF2;
+  Object.entries(slots).forEach(([key,slot])=>{
+    const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(slot.t))<1800000);
+    if(!ev||ev.state!=='post')return;
+    const hw=ev.hw||(!ev.aw&&ev.hs>ev.as),aw=ev.aw||(!ev.hw&&ev.as>ev.hs);
+    if(hw){KOSLOT['W:'+key]={c:ev.hc,ok:true};KOSLOT['L:'+key]={c:ev.ac,ok:true};}
+    else if(aw){KOSLOT['W:'+key]={c:ev.ac,ok:true};KOSLOT['L:'+key]={c:ev.hc,ok:true};}
+  });
+}
 function renderGroups(){
   KOSLOT={};
   const sideL=$('#sideL'),sideR=$('#sideR');sideL.innerHTML='';sideR.innerHTML='';
@@ -814,6 +841,8 @@ function renderGroups(){
   });
   /* pass 1.5: project every R32 slot + the provisional best-eight third places */
   const {provThird,allFinal}=resolveBracket(G);
+  /* pass 1.75: propagate KO winners into the next round's placeholder slots */
+  resolveKOWinners();
   /* pass 2: render each group box */
   Object.entries(GROUPS).forEach(([g,teams],i)=>{
     const {st,order,ci,liveTeams}=G[g];
@@ -1235,7 +1264,10 @@ const RCOLOR={R32:'#4aa8ff',R16:'#2fd6c3',QF:'#ff9434',SF:'#b97bff','3RD':'#e0a4
 function shortPH(p){
   const m=p.match(/^(1)st Group ([A-L])$|^(2)nd Group ([A-L])$/);
   if(m)return(m[1]||m[3])+(m[2]||m[4]);
-  return/^3rd/.test(p)?'3rd':p;
+  if(/^3rd/.test(p))return'3rd';
+  if(/^W:/.test(p))return'W';
+  if(/^L:/.test(p))return'L';
+  return p;
 }
 function calRow(m){
   const p=parts(m.bst);
