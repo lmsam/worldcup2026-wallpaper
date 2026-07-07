@@ -812,7 +812,7 @@ function resolveKOWinners(){
   QFR.forEach((s,i)=>slots['qfr-'+i]=s);
   slots['sf1']=SF1;slots['sf2']=SF2;
   Object.entries(slots).forEach(([key,slot])=>{
-    const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(slot.t))<1800000);
+    const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(slot.t))<7200000);
     if(!ev||ev.state!=='post')return;
     const hw=ev.hw||(!ev.aw&&ev.hs>ev.as),aw=ev.aw||(!ev.hw&&ev.as>ev.hs);
     if(hw){KOSLOT['W:'+key]={c:ev.hc,ok:true};KOSLOT['L:'+key]={c:ev.ac,ok:true};}
@@ -883,7 +883,7 @@ function renderGroups(){
   });
 }
 function koCardAt(slot,key,x,y,w,h,cls,label){
-  const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(slot.t))<1800000);
+  const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(slot.t))<7200000);
   const p=slot.p||[null,null];
   const seed=i=>p[i]?shortPH(p[i]):'';            /* '1st Group A' -> '1A', '3rd …' -> '3rd' */
   let rows,live='';
@@ -1248,7 +1248,7 @@ function buildSchedMatches(){
   const all=[];
   FIX.forEach(f=>all.push({utc:utcOf(f[3]),bst:f[3],kind:'group',g:f[0],hc:f[1],ac:f[2],venue:f[4],tv:f[5]}));
   const addKO=(slots,rnd)=>slots.forEach(s=>{
-    const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(s.t))<1800000);
+    const ev=koEvents.find(e=>Math.abs(e.utc-utcOf(s.t))<7200000);
     all.push({utc:utcOf(s.t),bst:s.t,kind:'ko',rnd,venue:s.v,
       hc:ev?ev.hc:null,ac:ev?ev.ac:null,ph:s.p||null,
       hs:ev&&ev.state!=='pre'?ev.hs:null,as:ev&&ev.state!=='pre'?ev.as:null,
